@@ -1,10 +1,17 @@
-import express from "express"
+import cors from 'cors'
 import "dotenv/config"
+import { drizzle } from 'drizzle-orm/libsql'
+import express from "express"
 
-const app = express()
 const port = process.env.PORT ?? "3001"
 
-app.get("/", (res, req) => {
+const db = drizzle(process.env.DB_FILE_NAME!)
+
+const app = express()
+app.use(cors())
+
+app.get("/", (req, res) => {
+  res.send("<p>Hello Worlds!</p>")
   console.log("Response sent")
 })
 

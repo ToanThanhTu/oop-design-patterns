@@ -23,6 +23,7 @@
   "packageManager": "pnpm@10.14.0",
   "type": "module",
   "dependencies": {
+    "@libsql/client": "^0.17.0",
     "better-sqlite3": "^12.8.0",
     "cors": "^2.8.6",
     "drizzle-orm": "^0.45.1",
