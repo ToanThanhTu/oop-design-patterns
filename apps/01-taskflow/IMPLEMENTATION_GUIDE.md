@@ -171,15 +171,21 @@ backend/
 5. Run `pnpm drizzle-kit migrate` to apply them (this creates the `.db` file automatically)
 
 **Hints:**
+- Use `better-sqlite3` as the driver, NOT `@libsql/client`. For local-only SQLite, better-sqlite3 is ~50-130x faster. libsql is designed for remote/distributed use (Turso)
+- Import from `drizzle-orm/better-sqlite3` (not `drizzle-orm/libsql`)
+- `connection.ts` should create a `Database` instance from `better-sqlite3`, then wrap it with `drizzle()`
+- `drizzle.config.ts` dialect should be `"sqlite"` with `dbCredentials: { url: "./data/taskflow.db" }`
 - SQLite stores booleans as integers. Use `integer('col', { mode: 'boolean' })` in Drizzle
 - SQLite has no native date type. Store dates as ISO strings in `text` columns
 - Use `crypto.randomUUID()` for IDs (built into Node.js, no package needed)
 - For foreign keys, use `.references(() => otherTable.id)` in Drizzle
+- Add `*.db` to `.gitignore` -- don't commit the database file
 
 **Resources:**
-- Drizzle + SQLite getting started: https://orm.drizzle.team/docs/get-started/sqlite-new
+- Drizzle + better-sqlite3 getting started: https://orm.drizzle.team/docs/get-started/sqlite-new
 - Drizzle SQLite column types: https://orm.drizzle.team/docs/column-types/sqlite
 - Drizzle migrations: https://orm.drizzle.team/docs/migrations
+- better-sqlite3 API docs: https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md
 
 ---
 

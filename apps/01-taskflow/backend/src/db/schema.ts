@@ -1,58 +1,79 @@
-import { type AnySQLiteColumn, int, sqliteTable as table, text } from 'drizzle-orm/sqlite-core'
-
-import { timestamps } from './columns.helpers.js'
+import { timestamps } from "#db/columns.helpers.js"
+import {
+  type AnySQLiteColumn,
+  int,
+  primaryKey,
+  sqliteTable as table,
+  text,
+} from "drizzle-orm/sqlite-core"
 
 export const boardsTable = table("boards_table", {
-  id: text().primaryKey(),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text().notNull(),
-  ...timestamps
+  ...timestamps,
 })
 
 export const columnsTable = table("columns_table", {
   boardId: text("board_id").references((): AnySQLiteColumn => boardsTable.id),
-  id: text().primaryKey(),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text().notNull(),
   position: int().notNull(),
-  ...timestamps
+  ...timestamps,
 })
 
 export const tasksTable = table("tasks_table", {
   assignee: text(),
   columnId: text("column_id").references((): AnySQLiteColumn => columnsTable.id),
   description: text(),
-  dueDate: text('due_date'),
-  id: text().primaryKey(),
-  isTemplate: int('is_template').notNull().default(0),
+  dueDate: text("due_date"),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  isTemplate: int("is_template").notNull().default(0),
   position: int().notNull(),
-  priority: text().notNull().default('medium'),
+  priority: text().notNull().default("medium"),
   title: text().notNull(),
-  type: text().notNull().default('task'),
-  ...timestamps
+  type: text().notNull().default("task"),
+  ...timestamps,
 })
 
-export const subtasksTable = table('subtasks_table', {
-  id: text().primaryKey(),
+export const subtasksTable = table("subtasks_table", {
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   isComplete: int("is_complete").notNull().default(0),
   position: int().notNull(),
   taskId: text("task_id").references((): AnySQLiteColumn => tasksTable.id),
-  title: text().notNull()
+  title: text().notNull(),
 })
 
-export const labelsTable = table('labels_table', {
+export const labelsTable = table("labels_table", {
   color: text().notNull(),
-  id: text().primaryKey(),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text().notNull(),
 })
 
-export const taskLabelsTable = table('task_labels_table', {
-  labelId: text("label_id").references((): AnySQLiteColumn => labelsTable.id),
-  taskId: text("task_id").references((): AnySQLiteColumn => tasksTable.id)
-})
+export const taskLabelsTable = table(
+  "task_labels_table",
+  {
+    labelId: text("label_id"),
+    taskId: text("task_id"),
+  },
+  (table) => [primaryKey({ columns: [table.labelId, table.taskId] })],
+)
 
-export const snapshotsTable = table('snapshots_table', {
+export const snapshotsTable = table("snapshots_table", {
   boardId: text("board_id").references((): AnySQLiteColumn => boardsTable.id),
   description: text(),
-  id: text().primaryKey(),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   state: text().notNull(),
-  ...timestamps
+  ...timestamps,
 })
