@@ -30,16 +30,16 @@ export class Task {
   }: TaskType) {
     this.assignee = assignee ?? null
     this.columnId = columnId
-    this.createdAt = createdAt
+    this.createdAt = createdAt ?? new Date().toISOString()
     this.description = description ?? null
     this.dueDate = dueDate ?? null
-    this.id = id
+    this.id = id ?? crypto.randomUUID()
     this.isTemplate = isTemplate
     this.position = position
     this.priority = priority
     this.title = title
     this.type = type
-    this.updatedAt = updatedAt
+    this.updatedAt = updatedAt ?? new Date().toISOString()
   }
 
   public getAssignee(): null | string {
@@ -119,10 +119,19 @@ export class Task {
   }
 
   public setPosition(v: number) {
+    if (v < 0 || typeof v !== "number") {
+      throw new Error(`Invalid position: ${v}`)
+    }
+
     this.position = v
   }
 
   public setPriority(v: PriorityType) {
+    const valid: PriorityType[] = ["low", "medium", "high"]
+    if (!valid.includes(v)) {
+      throw new Error(`Invalid priority: ${v}`)
+    }
+
     this.priority = v
   }
 
@@ -131,6 +140,11 @@ export class Task {
   }
 
   public setType(v: TaskTypeType) {
+    const valid: TaskTypeType[] = ["bug", "feature", "story", "task"]
+    if (!valid.includes(v)) {
+      throw new Error(`Invalid type: ${v}`)
+    }
+
     this.type = v
   }
 

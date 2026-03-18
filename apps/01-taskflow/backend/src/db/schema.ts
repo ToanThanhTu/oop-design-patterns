@@ -33,7 +33,7 @@ export const tasksTable = table("tasks_table", {
   id: text()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  isTemplate: int("is_template").notNull().default(0),
+  isTemplate: int("is_template", { mode: "boolean" }).notNull().default(false),
   position: int().notNull(),
   priority: text().notNull().default("medium"),
   title: text().notNull(),

@@ -56,6 +56,7 @@ columns
   name        TEXT NOT NULL
   position    INTEGER NOT NULL
   created_at  TEXT NOT NULL
+  updated_at  TEXT NOT NULL
 
 tasks
   id          TEXT PK
@@ -94,6 +95,7 @@ snapshots
   state       TEXT NOT NULL                   -- JSON blob (Memento pattern)
   description TEXT
   created_at  TEXT NOT NULL
+  updated_at  TEXT NOT NULL
 ```
 
 ---
