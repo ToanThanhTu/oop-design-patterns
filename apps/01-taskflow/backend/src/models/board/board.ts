@@ -1,5 +1,7 @@
 import type { BoardType } from "#models/board/types.js"
 
+import { BoardSnapshot } from "#models/board/boardSnapshot.js"
+
 export class Board {
   private createdAt: string
   private id: string
@@ -11,6 +13,15 @@ export class Board {
     this.name = name
     this.createdAt = createdAt ?? new Date().toISOString()
     this.updatedAt = updatedAt ?? new Date().toISOString()
+  }
+
+  public createSnapshot(): BoardSnapshot {
+    return new BoardSnapshot({
+      createdAt: this.createdAt,
+      id: this.id,
+      name: this.name,
+      updatedAt: this.updatedAt,
+    })
   }
 
   public getCreatedAt(): string {
@@ -27,6 +38,15 @@ export class Board {
 
   public getUpdatedAt(): string {
     return this.updatedAt
+  }
+
+  public restoreSnapshot(boardSnapshot: BoardSnapshot): void {
+    const restored: BoardType = JSON.parse(boardSnapshot.getBoardState())
+
+    this.id = restored.id!
+    this.name = restored.name
+    this.createdAt = restored.createdAt!
+    this.updatedAt = restored.updatedAt!
   }
 
   public setCreatedAt(v: string) {

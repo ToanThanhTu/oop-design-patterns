@@ -1,18 +1,19 @@
+import type { Cloneable } from "#models/task/cloneable.js"
 import type { PriorityType, TaskType, TaskTypeType } from "#models/task/types.js"
 
-export class Task {
-  private assignee: null | string
-  private columnId: string
-  private createdAt: string
-  private description: null | string
-  private dueDate: null | string
-  private id: string
-  private isTemplate: boolean
-  private position: number
-  private priority: PriorityType
-  private title: string
-  private type: TaskTypeType = "task"
-  private updatedAt: string
+export class Task implements Cloneable {
+  protected assignee: null | string
+  protected columnId: string
+  protected createdAt: string
+  protected description: null | string
+  protected dueDate: null | string
+  protected id: string
+  protected isTemplate: boolean
+  protected position: number
+  protected priority: PriorityType
+  protected title: string
+  protected type: TaskTypeType = "task"
+  protected updatedAt: string
 
   constructor({
     assignee,
@@ -40,6 +41,20 @@ export class Task {
     this.title = title
     this.type = type
     this.updatedAt = updatedAt ?? new Date().toISOString()
+  }
+
+  public clone() {
+    return new Task({
+      assignee: this.assignee,
+      columnId: this.columnId,
+      description: this.description,
+      dueDate: this.dueDate,
+      isTemplate: false,
+      position: this.position,
+      priority: this.priority,
+      title: this.title,
+      type: this.type,
+    })
   }
 
   public getAssignee(): null | string {

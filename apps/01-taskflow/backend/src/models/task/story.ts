@@ -9,4 +9,17 @@ export class Story extends Task {
       type: "story",
     })
   }
+
+  public clone(): Story {
+    return new Story({
+      assignee: this.assignee,
+      columnId: this.columnId,
+      description: this.description,
+      dueDate: this.dueDate,
+      isTemplate: false,
+      position: this.position,
+      priority: this.priority,
+      title: this.title,
+    })
+  }
 }

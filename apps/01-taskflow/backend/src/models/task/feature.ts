@@ -9,4 +9,17 @@ export class Feature extends Task {
       type: "feature",
     })
   }
+
+  public clone(): Feature {
+    return new Feature({
+      assignee: this.assignee,
+      columnId: this.columnId,
+      description: this.description,
+      dueDate: this.dueDate,
+      isTemplate: false,
+      position: this.position,
+      priority: this.priority,
+      title: this.title,
+    })
+  }
 }

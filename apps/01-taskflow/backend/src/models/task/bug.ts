@@ -9,4 +9,17 @@ export class Bug extends Task {
       type: "bug",
     })
   }
+
+  public clone(): Bug {
+    return new Bug({
+      assignee: this.assignee,
+      columnId: this.columnId,
+      description: this.description,
+      dueDate: this.dueDate,
+      isTemplate: false,
+      position: this.position,
+      priority: this.priority,
+      title: this.title,
+    })
+  }
 }
