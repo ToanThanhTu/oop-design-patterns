@@ -1,5 +1,5 @@
-import type { Cloneable } from "#models/task/cloneable.js"
 import type { PriorityType, TaskType, TaskTypeType } from "#models/task/types.js"
+import type { Cloneable } from "#patterns/cloneable.js"
 
 export class Task implements Cloneable {
   protected assignee: null | string

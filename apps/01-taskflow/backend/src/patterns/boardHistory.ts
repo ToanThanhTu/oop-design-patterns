@@ -1,4 +1,4 @@
-import type { BoardSnapshot } from "#models/board/boardSnapshot.js"
+import type { BoardSnapshot } from "#patterns/boardSnapshot.js"
 
 export class BoardHistory {
   private poppedSnapshots: BoardSnapshot[] = []

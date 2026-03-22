@@ -27,7 +27,9 @@ export const columnsTable = table("columns_table", {
 
 export const tasksTable = table("tasks_table", {
   assignee: text(),
-  columnId: text("column_id").references((): AnySQLiteColumn => columnsTable.id),
+  columnId: text("column_id")
+    .references((): AnySQLiteColumn => columnsTable.id)
+    .notNull(),
   description: text(),
   dueDate: text("due_date"),
   id: text()

@@ -1,6 +1,6 @@
 import type { BoardType } from "#models/board/types.js"
 
-import { BoardSnapshot } from "#models/board/boardSnapshot.js"
+import { BoardSnapshot } from "#patterns/boardSnapshot.js"
 
 export class Board {
   private createdAt: string
