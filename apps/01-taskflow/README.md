@@ -8,19 +8,19 @@ A Kanban-style task board where users create, organize, and track tasks across c
 |-------|-----------|
 | Frontend | React (Vite) |
 | Backend | Express.js |
-| Database | SQLite |
+| Database | SQLite (Drizzle ORM) |
 
 ## Concepts Covered
 
 ### OOP Fundamentals
-- **Class** -- `Task`, `Column`, `Board` classes
+- **Class** -- `Task`, `Column`, `Board`, `Label`, `Subtask`, `TaskLabel` classes
 - **Objects** -- Task instances created from class blueprints
-- **Encapsulation** -- Private task state (status, priority) with controlled access via methods
+- **Encapsulation** -- Private backing fields (`_field`) with TS native `get`/`set` accessors
 - **Abstraction** -- `TaskTemplate` abstract class hiding creation complexity
 
 ### SOLID Principles
-- **SRP** -- Separate classes: `Task`, `TaskRepository`, `TaskService`, `TaskSerializer`
-- **OCP** -- New task types (Bug, Feature, Story) extend `Task` without modifying it
+- **SRP** -- Separate classes per concern: models (`Task`, `Board`), repositories (`TaskRepository`, `BoardRepository`), patterns (`TaskIterator`, `BoardHistory`)
+- **OCP** -- New task types (`Bug`, `Feature`, `Story`) extend `Task` without modifying it
 
 ### Design Patterns
 
@@ -33,16 +33,28 @@ Save and restore board snapshots for undo/redo. A `BoardHistory` caretaker store
 #### Iterator
 Custom `TaskIterator` traverses all tasks across all columns, supporting filter predicates for priority, assignee, and due date. Used in search/filter endpoints and bulk operations.
 
+## Backend Structure
+
+```
+backend/src/
+├── db/              # Drizzle schema, connection, column helpers
+├── models/          # Domain classes (Board, Column, Task, Label, Subtask, TaskLabel)
+├── patterns/        # Design pattern implementations (Cloneable, BoardSnapshot, BoardHistory, TaskIterator)
+├── repositories/    # Data access layer (one per entity, with toModel/toRow mapping)
+└── routes/          # Express route handlers
+```
+
 ## Getting Started
 
 ```bash
 # Backend
 cd backend
-npm install
-npm run dev
+pnpm install
+pnpm run db:migrate
+pnpm run dev
 
-# Frontend
+# Frontend (not yet implemented)
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```

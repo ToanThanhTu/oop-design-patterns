@@ -12,14 +12,17 @@ export class Feature extends Task {
 
   public clone(): Feature {
     return new Feature({
-      assignee: this.assignee,
-      columnId: this.columnId,
-      description: this.description,
-      dueDate: this.dueDate,
+      assignee: this._assignee,
+      columnId: this._columnId,
+      createdAt: this._createdAt,
+      description: this._description,
+      dueDate: this._dueDate,
+      id: this._id,
       isTemplate: false,
-      position: this.position,
-      priority: this.priority,
-      title: this.title,
+      position: this._position,
+      priority: this._priority,
+      title: this._title,
+      updatedAt: this._updatedAt,
     })
   }
 }

@@ -7,8 +7,12 @@ import { eq } from "drizzle-orm"
 export class TaskRepository {
   constructor(private db: BetterSQLite3Database) {}
 
-  async create(task: Omit<Task, "id">): Promise<Task[]> {
-    return await this.db.insert(tasksTable).values(task).returning()
+  async create(task: Task): Promise<Task[]> {
+    const result = await this.db.insert(tasksTable).values(this.toRow(task)).returning()
+    
+    const tasks = result.map(taskRow => this.toTask(taskRow))
+
+    return tasks
   }
 
   async delete(id: string): Promise<void> {
@@ -17,18 +21,42 @@ export class TaskRepository {
 
   async findByColumnId(columnId: string): Promise<Task[]> {
     const result = await this.db.select().from(tasksTable).where(eq(tasksTable.columnId, columnId))
+    
+    const tasks = result.map(taskRow => this.toTask(taskRow))
 
-    return result
+    return tasks
   }
 
   async findById(id: string): Promise<Task | undefined> {
     const result = await this.db.select().from(tasksTable).where(eq(tasksTable.id, id)).limit(1)
 
-    return result[0]
+    const tasks = result.map(taskRow => this.toTask(taskRow))
+
+    return tasks[0]
   }
 
   async update(task: Task): Promise<Task[]> {
-    return await this.db.update(tasksTable).set(task).where(eq(tasksTable.id, task.getId()))
+    const result = await this.db.update(tasksTable).set(this.toRow(task)).where(eq(tasksTable.id, task.id)).returning()
+    
+    const tasks = result.map(taskRow => this.toTask(taskRow))
+
+    return tasks
+  }
+
+  // Convert Task instance to plain object for Drizzle
+  private toRow(task: Task): typeof tasksTable.$inferInsert {
+    return {
+      assignee: task.assignee,
+      columnId: task.columnId,
+      description: task.description,
+      dueDate: task.dueDate,
+      id: task.id,
+      isTemplate: task.isTemplate,
+      position: task.position,
+      priority: task.priority,
+      title: task.title,
+      type: task.type,
+    }
   }
 
   // Convert DB row to Task instance
@@ -48,7 +76,4 @@ export class TaskRepository {
       updatedAt: row.updatedAt,
     })
   }
-
-  // Convert Task instance to plain object for Drizzle
-  private toRow(task: Task): typeof tasksTable.$inferInsert {}
 }

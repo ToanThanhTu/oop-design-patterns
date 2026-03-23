@@ -1,67 +1,67 @@
 import type { ColumnType } from "#models/column/types.js"
 
 export class Column {
-  private boardId: string
-  private createdAt: string
-  private id: string
-  private name: string
-  private position: number
-  private updatedAt: string
+  public get boardId(): string {
+    return this._boardId
+  }
+
+  public set boardId(value: string) {
+    this._boardId = value
+  }
+
+  public get createdAt(): string {
+    return this._createdAt
+  }
+
+  public set createdAt(value: string) {
+    this._createdAt = value
+  }
+
+  public get id(): string {
+    return this._id
+  }
+
+  public set id(value: string) {
+    this._id = value
+  }
+
+  public get name(): string {
+    return this._name
+  }
+
+  public set name(value: string) {
+    this._name = value
+  }
+
+  public get position(): number {
+    return this._position
+  }
+
+  public set position(value: number) {
+    this._position = value
+  }
+
+  public get updatedAt(): string {
+    return this._updatedAt
+  }
+
+  public set updatedAt(value: string) {
+    this._updatedAt = value
+  }
+
+  private _boardId: string
+  private _createdAt: string
+  private _id: string
+  private _name: string
+  private _position: number
+  private _updatedAt: string
 
   constructor({ boardId, createdAt, id, name, position, updatedAt }: ColumnType) {
-    this.id = id ?? crypto.randomUUID()
-    this.name = name
-    this.boardId = boardId
-    this.createdAt = createdAt ?? new Date().toISOString()
-    this.updatedAt = updatedAt ?? new Date().toISOString()
-    this.position = position
-  }
-
-  public getBoardId(): string {
-    return this.boardId
-  }
-
-  public getCreatedAt(): string {
-    return this.createdAt
-  }
-
-  public getId(): string {
-    return this.id
-  }
-
-  public getName(): string {
-    return this.name
-  }
-
-  public getPosition(): number {
-    return this.position
-  }
-
-  public getUpdatedAt(): string {
-    return this.updatedAt
-  }
-
-  public setBoardId(v: string) {
-    this.boardId = v
-  }
-
-  public setCreatedAt(v: string) {
-    this.createdAt = v
-  }
-
-  public setId(v: string) {
-    this.id = v
-  }
-
-  public setName(v: string) {
-    this.name = v
-  }
-
-  public setPosition(v: number) {
-    this.position = v
-  }
-
-  public setUpdatedAt(v: string) {
-    this.updatedAt = v
+    this._id = id
+    this._name = name
+    this._boardId = boardId
+    this._createdAt = createdAt
+    this._updatedAt = updatedAt
+    this._position = position
   }
 }

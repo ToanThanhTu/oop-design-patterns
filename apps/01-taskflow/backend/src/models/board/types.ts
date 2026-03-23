@@ -1,6 +1,6 @@
 export interface BoardType {
-  createdAt?: string
-  id?: string
+  createdAt: string
+  id: string
   name: string
-  updatedAt?: string
+  updatedAt: string
 }

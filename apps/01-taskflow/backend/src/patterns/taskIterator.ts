@@ -33,19 +33,19 @@ export class TaskIterator implements Iterable<Task> {
   }
 
   private matchesFilters(task: Task): boolean {
-    if (this.filters.assignee && task.getAssignee() !== this.filters.assignee) {
+    if (this.filters.assignee && task.assignee !== this.filters.assignee) {
       return false
     }
 
-    if (this.filters.priority && task.getPriority() !== this.filters.priority) {
+    if (this.filters.priority && task.priority !== this.filters.priority) {
       return false
     }
 
-    if (this.filters.type && task.getType() !== this.filters.type) {
+    if (this.filters.type && task.type !== this.filters.type) {
       return false
     }
 
-    const taskDueDate = task.getDueDate()
+    const taskDueDate = task.dueDate
 
     if (this.filters.dueDateFrom || this.filters.dueDateTo) {
       if (!taskDueDate) {

@@ -16,7 +16,7 @@ export const boardsTable = table("boards_table", {
 })
 
 export const columnsTable = table("columns_table", {
-  boardId: text("board_id").references((): AnySQLiteColumn => boardsTable.id),
+  boardId: text("board_id").notNull().references((): AnySQLiteColumn => boardsTable.id),
   id: text()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -37,9 +37,9 @@ export const tasksTable = table("tasks_table", {
     .$defaultFn(() => crypto.randomUUID()),
   isTemplate: int("is_template", { mode: "boolean" }).notNull().default(false),
   position: int().notNull(),
-  priority: text().notNull().default("medium"),
+  priority: text({ enum: ["high", "low", "medium"] }).notNull().default("medium"),
   title: text().notNull(),
-  type: text().notNull().default("task"),
+  type: text({ enum: ["bug", "feature", "story", "task"] }).notNull().default("task"),
   ...timestamps,
 })
 
@@ -47,9 +47,9 @@ export const subtasksTable = table("subtasks_table", {
   id: text()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  isComplete: int("is_complete").notNull().default(0),
+  isComplete: int("is_complete", { mode: 'boolean' }).notNull().default(false),
   position: int().notNull(),
-  taskId: text("task_id").references((): AnySQLiteColumn => tasksTable.id),
+  taskId: text("task_id").notNull().references((): AnySQLiteColumn => tasksTable.id),
   title: text().notNull(),
 })
 
@@ -64,8 +64,8 @@ export const labelsTable = table("labels_table", {
 export const taskLabelsTable = table(
   "task_labels_table",
   {
-    labelId: text("label_id"),
-    taskId: text("task_id"),
+    labelId: text("label_id").notNull(),
+    taskId: text("task_id").notNull(),
   },
   (table) => [primaryKey({ columns: [table.labelId, table.taskId] })],
 )

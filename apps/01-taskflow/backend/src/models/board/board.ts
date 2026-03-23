@@ -3,65 +3,65 @@ import type { BoardType } from "#models/board/types.js"
 import { BoardSnapshot } from "#patterns/boardSnapshot.js"
 
 export class Board {
-  private createdAt: string
-  private id: string
-  private name: string
-  private updatedAt: string
+  public get createdAt(): string {
+    return this._createdAt
+  }
+
+  public set createdAt(value: string) {
+    this._createdAt = value
+  }
+
+  public get id(): string {
+    return this._id
+  }
+
+  public set id(value: string) {
+    this._id = value
+  }
+
+  public get name(): string {
+    return this._name
+  }
+
+  public set name(value: string) {
+    this._name = value
+  }
+
+  public get updatedAt(): string {
+    return this._updatedAt
+  }
+
+  public set updatedAt(value: string) {
+    this._updatedAt = value
+  }
+
+  private _createdAt: string
+  private _id: string
+  private _name: string
+  private _updatedAt: string
 
   constructor({ createdAt, id, name, updatedAt }: BoardType) {
-    this.id = id ?? crypto.randomUUID()
-    this.name = name
-    this.createdAt = createdAt ?? new Date().toISOString()
-    this.updatedAt = updatedAt ?? new Date().toISOString()
+    this._id = id
+    this._name = name
+    this._createdAt = createdAt
+    this._updatedAt = updatedAt
   }
 
   public createSnapshot(): BoardSnapshot {
     return new BoardSnapshot({
-      createdAt: this.createdAt,
-      id: this.id,
-      name: this.name,
-      updatedAt: this.updatedAt,
+      createdAt: this._createdAt,
+      id: this._id,
+      name: this._name,
+      updatedAt: this._updatedAt,
     })
-  }
-
-  public getCreatedAt(): string {
-    return this.createdAt
-  }
-
-  public getId(): string {
-    return this.id
-  }
-
-  public getName(): string {
-    return this.name
-  }
-
-  public getUpdatedAt(): string {
-    return this.updatedAt
   }
 
   public restoreSnapshot(boardSnapshot: BoardSnapshot): void {
     const restored: BoardType = JSON.parse(boardSnapshot.getBoardState())
 
-    this.id = restored.id!
-    this.name = restored.name
-    this.createdAt = restored.createdAt!
-    this.updatedAt = restored.updatedAt!
-  }
-
-  public setCreatedAt(v: string) {
-    this.createdAt = v
-  }
-
-  public setId(v: string) {
-    this.id = v
-  }
-
-  public setName(v: string) {
-    this.name = v
-  }
-
-  public setUpdatedAt(v: string) {
-    this.updatedAt = v
+    this._id = restored.id!
+    this._name = restored.name
+    this._createdAt = restored.createdAt!
+    this._updatedAt = restored.updatedAt!
   }
 }
