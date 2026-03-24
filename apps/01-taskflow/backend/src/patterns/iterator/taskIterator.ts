@@ -12,10 +12,15 @@ interface FilterType {
 
 export class TaskIterator implements Iterable<Task> {
   private filters: FilterType
+  private taskLabelMap: Map<string, string[]>
   private tasks: Task[]
 
-  constructor(tasks: Task[]) {
+  constructor(
+    tasks: Task[], 
+    taskLabelMap?: Map<string, string[]>
+  ) {
     this.tasks = tasks
+    this.taskLabelMap = taskLabelMap ?? new Map<string, string[]>()
     this.filters = {}
   }
 
@@ -33,6 +38,14 @@ export class TaskIterator implements Iterable<Task> {
   }
 
   private matchesFilters(task: Task): boolean {
+    if (this.filters.label) {
+      const taskLabels = this.taskLabelMap.get(task.id)
+
+      if (!taskLabels?.includes(this.filters.label)) {
+        return false
+      }
+    }
+
     if (this.filters.assignee && task.assignee !== this.filters.assignee) {
       return false
     }

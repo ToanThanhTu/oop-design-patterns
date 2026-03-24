@@ -1,6 +1,6 @@
 import type { BoardType } from "#models/board/types.js"
 
-import { BoardSnapshot } from "#patterns/boardSnapshot.js"
+import { BoardSnapshot } from "#patterns/memento/boardSnapshot.js"
 
 export class Board {
   public get createdAt(): string {

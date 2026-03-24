@@ -1,4 +1,4 @@
-import type { BoardSnapshot } from "#patterns/boardSnapshot.js"
+import type { BoardSnapshot } from "#patterns/memento/boardSnapshot.js"
 
 export class BoardHistory {
   private poppedSnapshots: BoardSnapshot[] = []
@@ -20,6 +20,10 @@ export class BoardHistory {
   }
 
   public undo(): BoardSnapshot | undefined {
+    if (this.snapshots.length <= 1) {
+      return undefined
+    }
+
     const currentState = this.snapshots.pop()
 
     if (currentState) {

@@ -1,3 +1,4 @@
+export type CreateTaskDto = Omit<TaskType, 'createdAt' | 'id' | 'updatedAt'>
 export type PriorityType = "high" | "low" | "medium"
 export interface TaskType {
   assignee: null | string
@@ -13,4 +14,5 @@ export interface TaskType {
   type: TaskTypeType
   updatedAt: string
 }
+
 export type TaskTypeType = "bug" | "feature" | "story" | "task"

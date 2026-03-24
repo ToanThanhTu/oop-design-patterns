@@ -1,3 +1,4 @@
+import type { CreateLabelDto } from "#models/label/types.js";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 
 import { labelsTable } from "#db/schema.js";
@@ -7,7 +8,7 @@ import { eq } from "drizzle-orm";
 export class LabelRepository {
   constructor(private db: BetterSQLite3Database) {}
   
-  async create(label: Label): Promise<Label[]> {
+  async create(label: CreateLabelDto): Promise<Label[]> {
     const result = await this.db.insert(labelsTable).values(this.toRow(label)).returning()
     
     const labels = result.map(labelRow => this.toLabel(labelRow))
@@ -51,10 +52,9 @@ export class LabelRepository {
     })
   }
 
-  private toRow(label: Label): typeof labelsTable.$inferInsert {
+  private toRow(label: CreateLabelDto | Label): typeof labelsTable.$inferInsert {
     return {
       color: label.color,
-      id: label.id,
       name: label.name
     }
   }

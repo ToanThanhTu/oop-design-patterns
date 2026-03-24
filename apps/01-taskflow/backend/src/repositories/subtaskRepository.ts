@@ -1,3 +1,4 @@
+import type { CreateSubtaskDto } from "#models/subtask/types.js";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 
 import { subtasksTable } from "#db/schema.js";
@@ -7,7 +8,7 @@ import { eq } from "drizzle-orm";
 export class SubtaskRepository {
   constructor(private db: BetterSQLite3Database) {}
   
-  async create(subtask: Subtask): Promise<Subtask[]> {
+  async create(subtask: CreateSubtaskDto): Promise<Subtask[]> {
     const result = await this.db.insert(subtasksTable).values(this.toRow(subtask)).returning()
     
     const subtasks = result.map(subtaskRow => this.toSubtask(subtaskRow))
@@ -43,9 +44,8 @@ export class SubtaskRepository {
     return subtasks
   }
 
-  private toRow(subtask: Subtask): typeof subtasksTable.$inferInsert {
+  private toRow(subtask: CreateSubtaskDto | Subtask): typeof subtasksTable.$inferInsert {
     return {
-      id: subtask.id,
       isComplete: subtask.isComplete,
       position: subtask.position,
       taskId: subtask.taskId,

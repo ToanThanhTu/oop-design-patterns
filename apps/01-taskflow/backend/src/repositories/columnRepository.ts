@@ -1,3 +1,4 @@
+import type { CreateColumnDto } from "#models/column/types.js";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 
 import { columnsTable } from "#db/schema.js";
@@ -7,7 +8,7 @@ import { eq } from "drizzle-orm";
 export class ColumnRepository {
   constructor(private db: BetterSQLite3Database) {}
 
-  async create(column: Column): Promise<Column[]> {
+  async create(column: CreateColumnDto): Promise<Column[]> {
     const result = await this.db.insert(columnsTable).values(this.toRow(column)).returning()
     
     const columns = result.map(columnRow => this.toColumn(columnRow))
@@ -62,10 +63,9 @@ export class ColumnRepository {
     })
   }
 
-  private toRow(column: Column): typeof columnsTable.$inferInsert {
+  private toRow(column: Column | CreateColumnDto): typeof columnsTable.$inferInsert {
     return {
       boardId: column.boardId,
-      id: column.id,
       name: column.name,
       position: column.position,
     }

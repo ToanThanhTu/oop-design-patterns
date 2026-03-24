@@ -1,3 +1,4 @@
+import type { CreateTaskDto } from "#models/task/types.js"
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
 
 import { tasksTable } from "#db/schema.js"
@@ -7,12 +8,12 @@ import { eq } from "drizzle-orm"
 export class TaskRepository {
   constructor(private db: BetterSQLite3Database) {}
 
-  async create(task: Task): Promise<Task[]> {
+  async create(task: CreateTaskDto): Promise<Task | undefined> {
     const result = await this.db.insert(tasksTable).values(this.toRow(task)).returning()
     
     const tasks = result.map(taskRow => this.toTask(taskRow))
 
-    return tasks
+    return tasks[0]
   }
 
   async delete(id: string): Promise<void> {
@@ -44,13 +45,12 @@ export class TaskRepository {
   }
 
   // Convert Task instance to plain object for Drizzle
-  private toRow(task: Task): typeof tasksTable.$inferInsert {
+  private toRow(task: CreateTaskDto | Task): typeof tasksTable.$inferInsert {
     return {
       assignee: task.assignee,
       columnId: task.columnId,
       description: task.description,
       dueDate: task.dueDate,
-      id: task.id,
       isTemplate: task.isTemplate,
       position: task.position,
       priority: task.priority,

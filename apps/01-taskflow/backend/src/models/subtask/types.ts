@@ -1,3 +1,5 @@
+export type CreateSubtaskDto = Omit<SubtaskType, "id">
+
 export interface SubtaskType {
   id: string,
   isComplete: boolean,

@@ -71,7 +71,7 @@ export const taskLabelsTable = table(
 )
 
 export const snapshotsTable = table("snapshots_table", {
-  boardId: text("board_id").references((): AnySQLiteColumn => boardsTable.id),
+  boardId: text("board_id").notNull().references((): AnySQLiteColumn => boardsTable.id),
   description: text(),
   id: text()
     .primaryKey()

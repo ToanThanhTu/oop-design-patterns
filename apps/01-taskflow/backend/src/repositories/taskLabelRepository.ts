@@ -7,12 +7,12 @@ import { and, eq } from "drizzle-orm";
 export class TaskLabelRepository {
   constructor(private db: BetterSQLite3Database) {}
 
-  async add(taskId: string, labelId: string): Promise<TaskLabel[]> {
+  async add(taskId: string, labelId: string): Promise<TaskLabel | undefined> {
     const result = await this.db.insert(taskLabelsTable).values({labelId, taskId}).returning()
 
     const taskLabels = result.map(row => this.toTaskLabel(row))
 
-    return taskLabels
+    return taskLabels[0]
   }
 
   async findByLabelId(labelId: string): Promise<TaskLabel[]> {

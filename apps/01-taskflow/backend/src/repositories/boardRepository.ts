@@ -1,3 +1,4 @@
+import type { CreateBoardDto } from "#models/board/types.js";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 
 import { boardsTable } from "#db/schema.js";
@@ -7,7 +8,7 @@ import { eq } from "drizzle-orm";
 export class BoardRepository {
   constructor(private db: BetterSQLite3Database) {}
 
-  async create(board: Board): Promise<Board[]> {
+  async create(board: CreateBoardDto): Promise<Board[]> {
       const result = await this.db.insert(boardsTable).values(this.toRow(board)).returning()
       
       const boards = result.map(boardRow => this.toBoard(boardRow))
@@ -52,9 +53,8 @@ export class BoardRepository {
       })
     }
 
-    private toRow(board: Board): typeof boardsTable.$inferInsert {
+    private toRow(board: Board | CreateBoardDto): typeof boardsTable.$inferInsert {
       return {
-        id: board.id,
         name: board.name,
       }
     }
