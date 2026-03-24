@@ -54,4 +54,14 @@ export class Subtask {
     this._position = position
     this._title = title
   }
+
+  toType(): SubtaskType {
+    return {
+      id: this._id,
+      isComplete: this._isComplete,
+      position: this._position,
+      taskId: this._taskId,
+      title: this._title,
+    }
+  }
 }

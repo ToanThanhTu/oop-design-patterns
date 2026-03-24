@@ -64,4 +64,15 @@ export class Column {
     this._updatedAt = updatedAt
     this._position = position
   }
+
+  toType(): ColumnType {
+    return {
+      boardId: this._boardId,
+      createdAt: this._createdAt,
+      id: this._id,
+      name: this._name,
+      position: this._position,
+      updatedAt: this._updatedAt,
+    }
+  }
 }

@@ -1,7 +1,5 @@
 import type { BoardType } from "#models/board/types.js"
 
-import { BoardSnapshot } from "#patterns/memento/boardSnapshot.js"
-
 export class Board {
   public get createdAt(): string {
     return this._createdAt
@@ -47,21 +45,12 @@ export class Board {
     this._updatedAt = updatedAt
   }
 
-  public createSnapshot(): BoardSnapshot {
-    return new BoardSnapshot({
+  toType(): BoardType {
+    return {
       createdAt: this._createdAt,
       id: this._id,
       name: this._name,
       updatedAt: this._updatedAt,
-    })
-  }
-
-  public restoreSnapshot(boardSnapshot: BoardSnapshot): void {
-    const restored: BoardType = JSON.parse(boardSnapshot.getBoardState())
-
-    this._id = restored.id!
-    this._name = restored.name
-    this._createdAt = restored.createdAt!
-    this._updatedAt = restored.updatedAt!
+    }
   }
 }

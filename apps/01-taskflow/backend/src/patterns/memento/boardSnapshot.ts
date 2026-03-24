@@ -1,9 +1,9 @@
-import type { BoardType } from "#models/board/types.js"
+import type { BoardStateType } from "#patterns/memento/types.js"
 
 export class BoardSnapshot {
   private readonly boardState: string
 
-  constructor(board: BoardType) {
+  constructor(board: BoardStateType) {
     this.boardState = JSON.stringify(board)
   }
 

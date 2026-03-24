@@ -1,5 +1,3 @@
-export type CreateColumnDto = Omit<ColumnType, "createdAt" | "id" | "updatedAt">
-
 export interface ColumnType {
   boardId: string
   createdAt: string
@@ -8,3 +6,5 @@ export interface ColumnType {
   position: number
   updatedAt: string
 }
+
+export type CreateColumnDto = Omit<ColumnType, "createdAt" | "id" | "updatedAt">

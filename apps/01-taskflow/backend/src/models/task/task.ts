@@ -166,4 +166,21 @@ export class Task implements Cloneable<CreateTaskDto> {
       type: this._type,
     }
   }
+
+  toType(): TaskType {
+    return {
+      assignee: this._assignee,
+      columnId: this._columnId,
+      createdAt: this._createdAt,
+      description: this._description,
+      dueDate: this._dueDate,
+      id: this._id,
+      isTemplate: false,
+      position: this._position,
+      priority: this._priority,
+      title: this._title,
+      type: this._type,
+      updatedAt: this._updatedAt,
+    }
+  }
 }
