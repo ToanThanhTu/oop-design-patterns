@@ -1,5 +1,5 @@
-export type CreateTaskDto = Omit<TaskType, 'createdAt' | 'id' | 'updatedAt'>
-export type PriorityType = "high" | "low" | "medium"
+import type { PriorityType, TaskTypeType } from "#schemas/taskSchemas.js"
+
 export interface TaskType {
   assignee: null | string
   columnId: string
@@ -14,5 +14,3 @@ export interface TaskType {
   type: TaskTypeType
   updatedAt: string
 }
-
-export type TaskTypeType = "bug" | "feature" | "story" | "task"
