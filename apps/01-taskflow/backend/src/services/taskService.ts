@@ -1,6 +1,6 @@
 import type { CreateSubtaskDto } from "#models/subtask/types.js";
 import type { Task } from "#models/task/task.js";
-import type { CreateTaskDto } from "#models/task/types.js";
+import type { CreateTaskDto, TaskType } from "#models/task/types.js";
 import type { TaskRepository } from "#repositories/taskRepository.js";
 
 import type { TaskLabelService } from "./taskLabelService.js";
@@ -52,7 +52,7 @@ export class TaskService {
     const labelIds = taskLabelRecords.map((record) => record.labelId)
 
     for (const labelId of labelIds) {
-      await this.taskLabelService.add(newTask.id, labelId)
+      await this.taskLabelService.add({labelId, taskId: newTask.id})
     }
 
     return newTask
@@ -66,12 +66,20 @@ export class TaskService {
     return this.taskRepository.delete(taskId)
   }
 
+  deleteByColumnId(columnId: string): Promise<void> {
+    return this.taskRepository.deleteByColumnId(columnId)
+  }
+
   getByColumnId(columnId: string): Promise<Task[]> {
     return this.taskRepository.findByColumnId(columnId)
   }
 
   getById(taskId: string): Promise<Task | undefined> {
     return this.taskRepository.findById(taskId)
+  }
+  
+  recreateRaw(task: TaskType): Promise<Task | undefined> {
+    return this.taskRepository.recreateRaw(task)
   }
 
   update(task: Task): Promise<Task[]> {

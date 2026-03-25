@@ -1,4 +1,4 @@
-import type { CreateTaskDto } from "#models/task/types.js"
+import type { CreateTaskDto, TaskType } from "#models/task/types.js"
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
 
 import { tasksTable } from "#db/schema.js"
@@ -20,6 +20,10 @@ export class TaskRepository {
     await this.db.delete(tasksTable).where(eq(tasksTable.id, id))
   }
 
+  async deleteByColumnId(columnId: string): Promise<void> {
+    await this.db.delete(tasksTable).where(eq(tasksTable.columnId, columnId))
+  }
+
   async findByColumnId(columnId: string): Promise<Task[]> {
     const result = await this.db.select().from(tasksTable).where(eq(tasksTable.columnId, columnId))
     
@@ -36,6 +40,14 @@ export class TaskRepository {
     return tasks[0]
   }
 
+  async recreateRaw(task: TaskType): Promise<Task | undefined> {
+    const result = await this.db.insert(tasksTable).values(task).returning()
+
+    const tasks = result.map(row => this.toTask(row))
+
+    return tasks[0]
+  }
+
   async update(task: Task): Promise<Task[]> {
     const result = await this.db.update(tasksTable).set(this.toRow(task)).where(eq(tasksTable.id, task.id)).returning()
     
@@ -44,8 +56,8 @@ export class TaskRepository {
     return tasks
   }
 
-  // Convert Task instance to plain object for Drizzle
-  private toRow(task: CreateTaskDto | Task): typeof tasksTable.$inferInsert {
+  // Convert Task instance to plain object for Drizzle for creation and update
+  private toRow(task: CreateTaskDto | TaskType): typeof tasksTable.$inferInsert {
     return {
       assignee: task.assignee,
       columnId: task.columnId,

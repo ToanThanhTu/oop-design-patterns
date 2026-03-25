@@ -1,5 +1,5 @@
 import type { Column } from "#models/column/column.js"
-import type { CreateColumnDto } from "#models/column/types.js"
+import type { ColumnType, CreateColumnDto } from "#models/column/types.js"
 import type { ColumnRepository } from "#repositories/columnRepository.js"
 
 export class ColumnService {
@@ -17,6 +17,10 @@ export class ColumnService {
     return this.columnRepository.delete(columnId)
   }
 
+  deleteByBoardId(boardId: string): Promise<void> {
+    return this.columnRepository.deleteByBoardId(boardId)
+  }
+
   getAll(): Promise<Column[]> {
     return this.columnRepository.findAll()
   }
@@ -27,6 +31,10 @@ export class ColumnService {
 
   getById(columnId: string): Promise<Column | undefined> {
     return this.columnRepository.findById(columnId)
+  }
+
+  recreateRaw(column: ColumnType): Promise<Column | undefined> {
+    return this.columnRepository.recreateRaw(column)
   }
 
   update(column: Column): Promise<Column[]> {

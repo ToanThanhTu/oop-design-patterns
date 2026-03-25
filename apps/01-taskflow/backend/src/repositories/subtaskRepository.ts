@@ -1,4 +1,4 @@
-import type { CreateSubtaskDto } from "#models/subtask/types.js";
+import type { CreateSubtaskDto, SubtaskType } from "#models/subtask/types.js";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 
 import { subtasksTable } from "#db/schema.js";
@@ -20,6 +20,10 @@ export class SubtaskRepository {
     await this.db.delete(subtasksTable).where(eq(subtasksTable.id, id))
   }
 
+  async deleteByTaskId(taskId: string): Promise<void> {
+    await this.db.delete(subtasksTable).where(eq(subtasksTable.taskId, taskId))
+  }
+
   async findById(id: string): Promise<Subtask | undefined> {
     const result = await this.db.select().from(subtasksTable).where(eq(subtasksTable.id, id)).limit(1)
 
@@ -34,6 +38,14 @@ export class SubtaskRepository {
     const subtasks = result.map(subtaskRow => this.toSubtask(subtaskRow))
 
     return subtasks
+  }
+
+  async recreateRaw(subtask: SubtaskType): Promise<Subtask | undefined> {
+    const result = await this.db.insert(subtasksTable).values(subtask).returning()
+
+    const tasks = result.map(row => this.toSubtask(row))
+
+    return tasks[0]
   }
 
   async update(subtask: Subtask): Promise<Subtask[]> {

@@ -1,4 +1,4 @@
-import type { CreateColumnDto } from "#models/column/types.js";
+import type { ColumnType, CreateColumnDto } from "#models/column/types.js";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 
 import { columnsTable } from "#db/schema.js";
@@ -18,6 +18,10 @@ export class ColumnRepository {
 
   async delete(id: string): Promise<void> {
     await this.db.delete(columnsTable).where(eq(columnsTable.id, id))
+  }
+
+  async deleteByBoardId(boardId: string): Promise<void> {
+    await this.db.delete(columnsTable).where(eq(columnsTable.boardId, boardId))
   }
 
   async findAll(): Promise<Column[]> {
@@ -42,6 +46,14 @@ export class ColumnRepository {
     const columns = result.map(columnRow => this.toColumn(columnRow))
 
     return columns[0]
+  }
+  
+  async recreateRaw(column: ColumnType): Promise<Column | undefined> {
+    const result = await this.db.insert(columnsTable).values(column).returning()
+
+    const tasks = result.map(row => this.toColumn(row))
+
+    return tasks[0]
   }
 
   async update(column: Column): Promise<Column[]> {

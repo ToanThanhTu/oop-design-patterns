@@ -1,3 +1,4 @@
+import type { TaskLabelType } from "#models/taskLabel/types.js";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 
 import { taskLabelsTable } from "#db/schema.js";
@@ -7,8 +8,8 @@ import { and, eq } from "drizzle-orm";
 export class TaskLabelRepository {
   constructor(private db: BetterSQLite3Database) {}
 
-  async add(taskId: string, labelId: string): Promise<TaskLabel | undefined> {
-    const result = await this.db.insert(taskLabelsTable).values({labelId, taskId}).returning()
+  async add(taskLabel: TaskLabelType): Promise<TaskLabel | undefined> {
+    const result = await this.db.insert(taskLabelsTable).values(taskLabel).returning()
 
     const taskLabels = result.map(row => this.toTaskLabel(row))
 
@@ -30,13 +31,13 @@ export class TaskLabelRepository {
 
     return taskLabels
   }
-  
-  async remove(taskId: string, labelId: string): Promise<void> {
+
+  async remove(taskLabel: TaskLabelType): Promise<void> {
     await this.db
       .delete(taskLabelsTable)
       .where(and(
-        eq(taskLabelsTable.taskId, taskId), 
-        eq(taskLabelsTable.labelId, labelId)
+        eq(taskLabelsTable.taskId, taskLabel.taskId), 
+        eq(taskLabelsTable.labelId, taskLabel.labelId)
       ))
   }
 

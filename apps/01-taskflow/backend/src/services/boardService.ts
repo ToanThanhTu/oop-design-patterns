@@ -1,7 +1,9 @@
 import type { Board } from "#models/board/board.js"
 import type { BoardType, CreateBoardDto } from "#models/board/types.js"
+import type { Column } from "#models/column/column.js"
 import type { ColumnType } from "#models/column/types.js"
 import type { SubtaskType } from "#models/subtask/types.js"
+import type { Task } from "#models/task/task.js"
 import type { TaskType } from "#models/task/types.js"
 import type { TaskLabelType } from "#models/taskLabel/types.js"
 import type { BoardHistory } from "#patterns/memento/boardHistory.js"
@@ -11,6 +13,7 @@ import type { SnapshotRepository } from "#repositories/snapshotRepository.js"
 import type { SubtaskService } from "#services/subtaskService.js"
 import type { TaskLabelService } from "#services/taskLabelService.js"
 
+import { TaskIterator } from "#patterns/iterator/taskIterator.js"
 import { BoardSnapshot } from "#patterns/memento/boardSnapshot.js"
 
 import type { ColumnService } from "./columnService.js"
@@ -119,20 +122,75 @@ export class BoardService {
     return this.snapshotRepository.findByBoardId(boardId)
   }
 
-  redo(): void {
+  async getTaskIterator(boardId: string): Promise<TaskIterator> {
+    const columns: Column[] = await this.columnService.getByBoardId(boardId)
+    const tasks: Task[] = []
+
+    const taskLabelMap = new Map<string, string[]>()
+
+    for (const column of columns) {
+      const tasksOfColumn = await this.taskService.getByColumnId(column.id)
+      tasks.push(...tasksOfColumn)
+    }
+
+    for (const task of tasks) {
+      const taskLabelsOfTask = await this.taskLabelService.getByTaskId(task.id)
+
+      taskLabelMap.set(task.id, taskLabelsOfTask.map((taskLabel) => taskLabel.labelId))
+    }
+
+    return new TaskIterator(tasks, taskLabelMap)
+  }
+
+  async redo(boardId: string): Promise<BoardStateType | undefined> {
     const boardSnapshot = this.boardHistory.redo()
 
     if (!boardSnapshot) return undefined
 
     const boardState: BoardStateType = JSON.parse(boardSnapshot.getBoardState())
+
+    if (boardId !== boardState.board.id) return undefined
+
+    await this.restoreState(boardState)
+
+    return boardState
   }
 
-  undo(): void {
+  async restoreState(boardState: BoardStateType): Promise<void> {
+    // Delete current state (cascade)
+    await this.columnService.deleteByBoardId(boardState.board.id)
+
+    // Re-insert state to be restored
+    // Re-insert columns
+    for (const column of boardState.columns) {
+      await this.columnService.recreateRaw(column)
+    }
+
+    for (const task of boardState.tasks) {
+      await this.taskService.recreateRaw(task)
+    }
+
+    for (const subtask of boardState.subtasks) {
+      await this.subtaskService.recreateRaw(subtask)
+    }
+
+    for (const taskLabel of boardState.taskLabels) {
+      await this.taskLabelService.add(taskLabel)
+    }
+  }
+
+  async undo(boardId: string): Promise<BoardStateType | undefined> {
     const boardSnapshot = this.boardHistory.undo()
 
     if (!boardSnapshot) return undefined
 
     const boardState: BoardStateType = JSON.parse(boardSnapshot.getBoardState())
+
+    if (boardId !== boardState.board.id) return undefined
+
+    await this.restoreState(boardState)
+
+    return boardState
   }
 
   update(board: Board): Promise<Board[]> {
