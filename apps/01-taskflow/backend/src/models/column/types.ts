@@ -6,5 +6,3 @@ export interface ColumnType {
   position: number
   updatedAt: string
 }
-
-export type CreateColumnDto = Omit<ColumnType, "createdAt" | "id" | "updatedAt">

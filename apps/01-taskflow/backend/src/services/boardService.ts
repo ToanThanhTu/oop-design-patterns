@@ -1,5 +1,5 @@
 import type { Board } from "#models/board/board.js"
-import type { BoardType, CreateBoardDto } from "#models/board/types.js"
+import type { BoardType } from "#models/board/types.js"
 import type { Column } from "#models/column/column.js"
 import type { ColumnType } from "#models/column/types.js"
 import type { SubtaskType } from "#models/subtask/types.js"
@@ -10,6 +10,7 @@ import type { BoardHistory } from "#patterns/memento/boardHistory.js"
 import type { BoardStateType, Snapshot } from "#patterns/memento/types.js"
 import type { BoardRepository } from "#repositories/boardRepository.js"
 import type { SnapshotRepository } from "#repositories/snapshotRepository.js"
+import type { CreateBoardDto, UpdateBoardDto } from "#schemas/boardSchemas.js"
 import type { SubtaskService } from "#services/subtaskService.js"
 import type { TaskLabelService } from "#services/taskLabelService.js"
 
@@ -50,7 +51,7 @@ export class BoardService {
     return this.boardRepository.create(board)
   }
 
-  async createSnapshot(boardId: string, description?: string): Promise<Snapshot | undefined> {
+  async createSnapshot(boardId: string, description: null | string): Promise<Snapshot | undefined> {
     // Get Board snapshot
     const board = await this.getById(boardId)
 
@@ -99,7 +100,11 @@ export class BoardService {
 
     this.boardHistory.save(newBoardSnapshot)
 
-    return this.snapshotRepository.create(boardId, newBoardSnapshot.getBoardState(), description)
+    return this.snapshotRepository.create({
+      boardId,
+      description,
+      state: newBoardSnapshot.getBoardState(),
+    })
   }
 
   delete(boardId: string): Promise<void> {
@@ -136,7 +141,10 @@ export class BoardService {
     for (const task of tasks) {
       const taskLabelsOfTask = await this.taskLabelService.getByTaskId(task.id)
 
-      taskLabelMap.set(task.id, taskLabelsOfTask.map((taskLabel) => taskLabel.labelId))
+      taskLabelMap.set(
+        task.id,
+        taskLabelsOfTask.map((taskLabel) => taskLabel.labelId),
+      )
     }
 
     return new TaskIterator(tasks, taskLabelMap)
@@ -193,7 +201,7 @@ export class BoardService {
     return boardState
   }
 
-  update(board: Board): Promise<Board[]> {
-    return this.boardRepository.update(board)
+  update(boardId: string, board: UpdateBoardDto): Promise<Board[]> {
+    return this.boardRepository.update(boardId, board)
   }
 }

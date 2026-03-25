@@ -1,26 +1,23 @@
-import type { NewSnapshot, Snapshot } from "#patterns/memento/types.js";
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
+import type { NewSnapshot, Snapshot } from "#patterns/memento/types.js"
+import type { CreateSnapshotDto } from "#schemas/snapshotSchemas.js"
+import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
 
-import { snapshotsTable } from "#db/schema.js";
-import { eq } from "drizzle-orm";
+import { snapshotsTable } from "#db/schema.js"
+import { eq } from "drizzle-orm"
 
 export class SnapshotRepository {
   constructor(private db: BetterSQLite3Database) {}
-  
-  async create(
-    boardId: string,
-    state: string, 
-    description?: string
-  ): Promise<Snapshot | undefined> {
+
+  async create({ boardId, description, state }: CreateSnapshotDto): Promise<Snapshot | undefined> {
     const newSnapshot: NewSnapshot = {
       boardId,
-      description: description ?? null,
-      state
+      description,
+      state,
     }
 
     const result = await this.db.insert(snapshotsTable).values(this.toRow(newSnapshot)).returning()
-    
-    const snapshots = result.map(row => this.toSnapshot(row))
+
+    const snapshots = result.map((row) => this.toSnapshot(row))
 
     return snapshots[0]
   }
@@ -34,17 +31,24 @@ export class SnapshotRepository {
   }
 
   async findByBoardId(boardId: string): Promise<Snapshot[]> {
-    const result = await this.db.select().from(snapshotsTable).where(eq(snapshotsTable.boardId, boardId))
+    const result = await this.db
+      .select()
+      .from(snapshotsTable)
+      .where(eq(snapshotsTable.boardId, boardId))
 
-    const snapshots = result.map(snapshotRow => this.toSnapshot(snapshotRow))
+    const snapshots = result.map((snapshotRow) => this.toSnapshot(snapshotRow))
 
     return snapshots
   }
 
   async findById(id: string): Promise<Snapshot | undefined> {
-    const result = await this.db.select().from(snapshotsTable).where(eq(snapshotsTable.id, id)).limit(1)
+    const result = await this.db
+      .select()
+      .from(snapshotsTable)
+      .where(eq(snapshotsTable.id, id))
+      .limit(1)
 
-    const snapshots = result.map(snapshotRow => this.toSnapshot(snapshotRow))
+    const snapshots = result.map((snapshotRow) => this.toSnapshot(snapshotRow))
 
     return snapshots[0]
   }
@@ -53,7 +57,7 @@ export class SnapshotRepository {
     return {
       boardId: snapshot.boardId,
       description: snapshot.description,
-      state: snapshot.state
+      state: snapshot.state,
     }
   }
 

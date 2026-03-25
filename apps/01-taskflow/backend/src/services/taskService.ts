@@ -1,11 +1,12 @@
-import type { CreateSubtaskDto } from "#models/subtask/types.js";
-import type { Task } from "#models/task/task.js";
-import type { CreateTaskDto, TaskType } from "#models/task/types.js";
-import type { TaskRepository } from "#repositories/taskRepository.js";
+import type { Task } from "#models/task/task.js"
+import type { TaskType } from "#models/task/types.js"
+import type { TaskRepository } from "#repositories/taskRepository.js"
+import type { CreateSubtaskDto } from "#schemas/subtaskSchemas.js"
+import type { CreateTaskDto, UpdateTaskDto } from "#schemas/taskSchemas.js"
 
-import type { TaskLabelService } from "./taskLabelService.js";
+import type { TaskLabelService } from "./taskLabelService.js"
 
-import { SubtaskService } from "./subtaskService.js";
+import { SubtaskService } from "./subtaskService.js"
 
 export class TaskService {
   private subtaskService: SubtaskService
@@ -13,8 +14,8 @@ export class TaskService {
   private taskRepository: TaskRepository
 
   constructor(
-    taskRepository: TaskRepository, 
-    subtaskService: SubtaskService, 
+    taskRepository: TaskRepository,
+    subtaskService: SubtaskService,
     taskLabelService: TaskLabelService,
   ) {
     this.taskRepository = taskRepository
@@ -30,7 +31,7 @@ export class TaskService {
     // Clone task
     const clone = task.clone()
     const newTask = await this.create(clone)
-    
+
     if (!newTask) return undefined
 
     // Clone subtasks
@@ -52,7 +53,7 @@ export class TaskService {
     const labelIds = taskLabelRecords.map((record) => record.labelId)
 
     for (const labelId of labelIds) {
-      await this.taskLabelService.add({labelId, taskId: newTask.id})
+      await this.taskLabelService.add({ labelId, taskId: newTask.id })
     }
 
     return newTask
@@ -77,12 +78,12 @@ export class TaskService {
   getById(taskId: string): Promise<Task | undefined> {
     return this.taskRepository.findById(taskId)
   }
-  
+
   recreateRaw(task: TaskType): Promise<Task | undefined> {
     return this.taskRepository.recreateRaw(task)
   }
 
-  update(task: Task): Promise<Task[]> {
-    return this.taskRepository.update(task)
+  update(taskId: string, task: UpdateTaskDto): Promise<Task[]> {
+    return this.taskRepository.update(taskId, task)
   }
 }

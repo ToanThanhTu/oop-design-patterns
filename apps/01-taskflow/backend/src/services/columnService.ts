@@ -1,6 +1,7 @@
 import type { Column } from "#models/column/column.js"
-import type { ColumnType, CreateColumnDto } from "#models/column/types.js"
+import type { ColumnType } from "#models/column/types.js"
 import type { ColumnRepository } from "#repositories/columnRepository.js"
+import type { CreateColumnDto, UpdateColumnDto } from "#schemas/columnSchemas.js"
 
 export class ColumnService {
   private columnRepository: ColumnRepository
@@ -37,7 +38,7 @@ export class ColumnService {
     return this.columnRepository.recreateRaw(column)
   }
 
-  update(column: Column): Promise<Column[]> {
-    return this.columnRepository.update(column)
+  update(columnId: string, column: UpdateColumnDto): Promise<Column[]> {
+    return this.columnRepository.update(columnId, column)
   }
 }

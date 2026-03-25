@@ -1,4 +1,5 @@
-import type { CreateTaskDto, TaskType } from "#models/task/types.js"
+import type { TaskType } from "#models/task/types.js"
+import type { CreateTaskDto, UpdateTaskDto } from "#schemas/taskSchemas.js"
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
 
 import { tasksTable } from "#db/schema.js"
@@ -10,8 +11,8 @@ export class TaskRepository {
 
   async create(task: CreateTaskDto): Promise<Task | undefined> {
     const result = await this.db.insert(tasksTable).values(this.toRow(task)).returning()
-    
-    const tasks = result.map(taskRow => this.toTask(taskRow))
+
+    const tasks = result.map((taskRow) => this.toTask(taskRow))
 
     return tasks[0]
   }
@@ -26,8 +27,8 @@ export class TaskRepository {
 
   async findByColumnId(columnId: string): Promise<Task[]> {
     const result = await this.db.select().from(tasksTable).where(eq(tasksTable.columnId, columnId))
-    
-    const tasks = result.map(taskRow => this.toTask(taskRow))
+
+    const tasks = result.map((taskRow) => this.toTask(taskRow))
 
     return tasks
   }
@@ -35,7 +36,7 @@ export class TaskRepository {
   async findById(id: string): Promise<Task | undefined> {
     const result = await this.db.select().from(tasksTable).where(eq(tasksTable.id, id)).limit(1)
 
-    const tasks = result.map(taskRow => this.toTask(taskRow))
+    const tasks = result.map((taskRow) => this.toTask(taskRow))
 
     return tasks[0]
   }
@@ -43,21 +44,25 @@ export class TaskRepository {
   async recreateRaw(task: TaskType): Promise<Task | undefined> {
     const result = await this.db.insert(tasksTable).values(task).returning()
 
-    const tasks = result.map(row => this.toTask(row))
+    const tasks = result.map((row) => this.toTask(row))
 
     return tasks[0]
   }
 
-  async update(task: Task): Promise<Task[]> {
-    const result = await this.db.update(tasksTable).set(this.toRow(task)).where(eq(tasksTable.id, task.id)).returning()
-    
-    const tasks = result.map(taskRow => this.toTask(taskRow))
+  async update(taskId: string, task: UpdateTaskDto): Promise<Task[]> {
+    const result = await this.db
+      .update(tasksTable)
+      .set(task)
+      .where(eq(tasksTable.id, taskId))
+      .returning()
+
+    const tasks = result.map((taskRow) => this.toTask(taskRow))
 
     return tasks
   }
 
   // Convert Task instance to plain object for Drizzle for creation and update
-  private toRow(task: CreateTaskDto | TaskType): typeof tasksTable.$inferInsert {
+  private toRow(task: CreateTaskDto): typeof tasksTable.$inferInsert {
     return {
       assignee: task.assignee,
       columnId: task.columnId,

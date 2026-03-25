@@ -1,4 +1,4 @@
-import * as z from 'zod/mini'
+import * as z from "zod/mini"
 
 export const PrioritySchema = z.enum(["low", "medium", "high"])
 export const TaskTypeSchema = z.enum(["bug", "feature", "story", "task"])
@@ -8,7 +8,7 @@ export type TaskTypeType = z.infer<typeof TaskTypeSchema>
 
 export const CreateTaskSchema = z.object({
   assignee: z.nullable(z.string()),
-  columnId: z.string().check(z.minLength(1)),
+  columnId: z.uuid(),
   description: z.nullable(z.string()),
   dueDate: z.nullable(z.iso.datetime()),
   isTemplate: z.boolean(),

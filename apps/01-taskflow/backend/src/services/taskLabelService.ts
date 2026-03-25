@@ -1,6 +1,6 @@
 import type { TaskLabel } from "#models/taskLabel/taskLabel.js"
-import type { TaskLabelType } from "#models/taskLabel/types.js"
 import type { TaskLabelRepository } from "#repositories/taskLabelRepository.js"
+import type { AddTaskLabelDto, RemoveTaskLabelDto } from "#schemas/taskLabelSchemas.js"
 
 export class TaskLabelService {
   private taskLabelRepository: TaskLabelRepository
@@ -9,7 +9,7 @@ export class TaskLabelService {
     this.taskLabelRepository = taskLabelRepository
   }
 
-  add(taskLabel: TaskLabelType): Promise<TaskLabel | undefined> {
+  add(taskLabel: AddTaskLabelDto): Promise<TaskLabel | undefined> {
     return this.taskLabelRepository.add(taskLabel)
   }
 
@@ -21,7 +21,7 @@ export class TaskLabelService {
     return this.taskLabelRepository.findByTaskId(taskId)
   }
 
-  remove(taskLabel: TaskLabelType): Promise<void> {
+  remove(taskLabel: RemoveTaskLabelDto): Promise<void> {
     return this.taskLabelRepository.remove(taskLabel)
   }
 }

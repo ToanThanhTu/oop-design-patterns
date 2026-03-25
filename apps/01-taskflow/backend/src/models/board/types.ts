@@ -4,5 +4,3 @@ export interface BoardType {
   name: string
   updatedAt: string
 }
-
-export type CreateBoardDto = Omit<BoardType, "createdAt" | "id" | "updatedAt">

@@ -1,6 +1,7 @@
 import type { Subtask } from "#models/subtask/subtask.js"
-import type { CreateSubtaskDto, SubtaskType } from "#models/subtask/types.js"
+import type { SubtaskType } from "#models/subtask/types.js"
 import type { SubtaskRepository } from "#repositories/subtaskRepository.js"
+import type { CreateSubtaskDto, UpdateSubtaskDto } from "#schemas/subtaskSchemas.js"
 
 export class SubtaskService {
   private subtaskRepository: SubtaskRepository
@@ -28,12 +29,12 @@ export class SubtaskService {
   getByTaskId(taskId: string): Promise<Subtask[]> {
     return this.subtaskRepository.findByTaskId(taskId)
   }
-  
+
   recreateRaw(subtask: SubtaskType): Promise<Subtask | undefined> {
     return this.subtaskRepository.recreateRaw(subtask)
   }
 
-  update(subtask: Subtask): Promise<Subtask[]> {
-    return this.subtaskRepository.update(subtask)
+  update(subtaskId: string, subtask: UpdateSubtaskDto): Promise<Subtask[]> {
+    return this.subtaskRepository.update(subtaskId, subtask)
   }
 }

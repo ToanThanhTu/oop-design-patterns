@@ -1,17 +1,18 @@
-import type { CreateSubtaskDto, SubtaskType } from "#models/subtask/types.js";
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
+import type { SubtaskType } from "#models/subtask/types.js"
+import type { CreateSubtaskDto, UpdateSubtaskDto } from "#schemas/subtaskSchemas.js"
+import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
 
-import { subtasksTable } from "#db/schema.js";
-import { Subtask } from "#models/subtask/subtask.js";
-import { eq } from "drizzle-orm";
+import { subtasksTable } from "#db/schema.js"
+import { Subtask } from "#models/subtask/subtask.js"
+import { eq } from "drizzle-orm"
 
 export class SubtaskRepository {
   constructor(private db: BetterSQLite3Database) {}
-  
+
   async create(subtask: CreateSubtaskDto): Promise<Subtask[]> {
     const result = await this.db.insert(subtasksTable).values(this.toRow(subtask)).returning()
-    
-    const subtasks = result.map(subtaskRow => this.toSubtask(subtaskRow))
+
+    const subtasks = result.map((subtaskRow) => this.toSubtask(subtaskRow))
 
     return subtasks
   }
@@ -25,17 +26,24 @@ export class SubtaskRepository {
   }
 
   async findById(id: string): Promise<Subtask | undefined> {
-    const result = await this.db.select().from(subtasksTable).where(eq(subtasksTable.id, id)).limit(1)
+    const result = await this.db
+      .select()
+      .from(subtasksTable)
+      .where(eq(subtasksTable.id, id))
+      .limit(1)
 
-    const subtasks = result.map(subtaskRow => this.toSubtask(subtaskRow))
+    const subtasks = result.map((subtaskRow) => this.toSubtask(subtaskRow))
 
     return subtasks[0]
   }
 
   async findByTaskId(taskId: string): Promise<Subtask[]> {
-    const result = await this.db.select().from(subtasksTable).where(eq(subtasksTable.taskId, taskId))
-        
-    const subtasks = result.map(subtaskRow => this.toSubtask(subtaskRow))
+    const result = await this.db
+      .select()
+      .from(subtasksTable)
+      .where(eq(subtasksTable.taskId, taskId))
+
+    const subtasks = result.map((subtaskRow) => this.toSubtask(subtaskRow))
 
     return subtasks
   }
@@ -43,25 +51,29 @@ export class SubtaskRepository {
   async recreateRaw(subtask: SubtaskType): Promise<Subtask | undefined> {
     const result = await this.db.insert(subtasksTable).values(subtask).returning()
 
-    const tasks = result.map(row => this.toSubtask(row))
+    const subtasks = result.map((row) => this.toSubtask(row))
 
-    return tasks[0]
+    return subtasks[0]
   }
 
-  async update(subtask: Subtask): Promise<Subtask[]> {
-    const result = await this.db.update(subtasksTable).set(this.toRow(subtask)).where(eq(subtasksTable.id, subtask.id)).returning()
-    
-    const subtasks = result.map(subtaskRow => this.toSubtask(subtaskRow))
+  async update(subtaskId: string, subtask: UpdateSubtaskDto): Promise<Subtask[]> {
+    const result = await this.db
+      .update(subtasksTable)
+      .set(subtask)
+      .where(eq(subtasksTable.id, subtaskId))
+      .returning()
+
+    const subtasks = result.map((subtaskRow) => this.toSubtask(subtaskRow))
 
     return subtasks
   }
 
-  private toRow(subtask: CreateSubtaskDto | Subtask): typeof subtasksTable.$inferInsert {
+  private toRow(subtask: CreateSubtaskDto): typeof subtasksTable.$inferInsert {
     return {
       isComplete: subtask.isComplete,
       position: subtask.position,
       taskId: subtask.taskId,
-      title: subtask.title
+      title: subtask.title,
     }
   }
 
@@ -71,7 +83,7 @@ export class SubtaskRepository {
       isComplete: row.isComplete,
       position: row.position,
       taskId: row.taskId,
-      title: row.title
+      title: row.title,
     })
   }
 }
