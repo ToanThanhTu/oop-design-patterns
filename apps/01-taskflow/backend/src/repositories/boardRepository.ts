@@ -8,12 +8,12 @@ import { eq } from "drizzle-orm"
 export class BoardRepository {
   constructor(private db: BetterSQLite3Database) {}
 
-  async create(board: CreateBoardDto): Promise<Board[]> {
+  async create(board: CreateBoardDto): Promise<Board | undefined> {
     const result = await this.db.insert(boardsTable).values(this.toRow(board)).returning()
 
     const boards = result.map((boardRow) => this.toBoard(boardRow))
 
-    return boards
+    return boards[0]
   }
 
   async delete(id: string): Promise<void> {
@@ -36,7 +36,7 @@ export class BoardRepository {
     return boards[0]
   }
 
-  async update(boardId: string, board: UpdateBoardDto): Promise<Board[]> {
+  async update(boardId: string, board: UpdateBoardDto): Promise<Board | undefined> {
     const result = await this.db
       .update(boardsTable)
       .set(board)
@@ -45,7 +45,7 @@ export class BoardRepository {
 
     const boards = result.map((boardRow) => this.toBoard(boardRow))
 
-    return boards
+    return boards[0]
   }
 
   private toBoard(row: typeof boardsTable.$inferSelect): Board {

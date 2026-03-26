@@ -6,7 +6,6 @@ import type { SubtaskType } from "#models/subtask/types.js"
 import type { Task } from "#models/task/task.js"
 import type { TaskType } from "#models/task/types.js"
 import type { TaskLabelType } from "#models/taskLabel/types.js"
-import type { BoardHistory } from "#patterns/memento/boardHistory.js"
 import type { BoardStateType, Snapshot } from "#patterns/memento/types.js"
 import type { BoardRepository } from "#repositories/boardRepository.js"
 import type { SnapshotRepository } from "#repositories/snapshotRepository.js"
@@ -15,13 +14,14 @@ import type { SubtaskService } from "#services/subtaskService.js"
 import type { TaskLabelService } from "#services/taskLabelService.js"
 
 import { TaskIterator } from "#patterns/iterator/taskIterator.js"
+import { BoardHistory } from "#patterns/memento/boardHistory.js"
 import { BoardSnapshot } from "#patterns/memento/boardSnapshot.js"
 
 import type { ColumnService } from "./columnService.js"
 import type { TaskService } from "./taskService.js"
 
 export class BoardService {
-  private boardHistory: BoardHistory
+  private boardHistoryMap = new Map<string, BoardHistory>()
   private boardRepository: BoardRepository
   private columnService: ColumnService
   private snapshotRepository: SnapshotRepository
@@ -30,7 +30,6 @@ export class BoardService {
   private taskService: TaskService
 
   constructor(
-    boardHistory: BoardHistory,
     boardRepository: BoardRepository,
     columnService: ColumnService,
     snapshotRepository: SnapshotRepository,
@@ -38,7 +37,6 @@ export class BoardService {
     taskLabelService: TaskLabelService,
     taskService: TaskService,
   ) {
-    this.boardHistory = boardHistory
     this.boardRepository = boardRepository
     this.columnService = columnService
     this.snapshotRepository = snapshotRepository
@@ -47,7 +45,7 @@ export class BoardService {
     this.taskService = taskService
   }
 
-  create(board: CreateBoardDto): Promise<Board[]> {
+  create(board: CreateBoardDto): Promise<Board | undefined> {
     return this.boardRepository.create(board)
   }
 
@@ -98,7 +96,7 @@ export class BoardService {
 
     const newBoardSnapshot = new BoardSnapshot(newBoardState)
 
-    this.boardHistory.save(newBoardSnapshot)
+    this.getBoardHistory(boardId).save(newBoardSnapshot)
 
     return this.snapshotRepository.create({
       boardId,
@@ -151,7 +149,7 @@ export class BoardService {
   }
 
   async redo(boardId: string): Promise<BoardStateType | undefined> {
-    const boardSnapshot = this.boardHistory.redo()
+    const boardSnapshot = this.getBoardHistory(boardId).redo()
 
     if (!boardSnapshot) return undefined
 
@@ -188,7 +186,7 @@ export class BoardService {
   }
 
   async undo(boardId: string): Promise<BoardStateType | undefined> {
-    const boardSnapshot = this.boardHistory.undo()
+    const boardSnapshot = this.getBoardHistory(boardId).undo()
 
     if (!boardSnapshot) return undefined
 
@@ -201,7 +199,20 @@ export class BoardService {
     return boardState
   }
 
-  update(boardId: string, board: UpdateBoardDto): Promise<Board[]> {
+  update(boardId: string, board: UpdateBoardDto): Promise<Board | undefined> {
     return this.boardRepository.update(boardId, board)
+  }
+
+  private getBoardHistory(boardId: string): BoardHistory {
+    const existingBoardHistory = this.boardHistoryMap.get(boardId)
+
+    if (existingBoardHistory) {
+      return existingBoardHistory
+    }
+
+    const newBoardHistory = new BoardHistory()
+    this.boardHistoryMap.set(boardId, newBoardHistory)
+
+    return newBoardHistory
   }
 }

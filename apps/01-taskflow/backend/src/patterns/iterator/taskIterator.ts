@@ -1,14 +1,5 @@
 import type { Task } from "#models/task/task.js"
-import type { TaskTypeType } from "#models/task/types.js"
-
-interface FilterType {
-  assignee?: string
-  dueDateFrom?: string
-  dueDateTo?: string
-  label?: string
-  priority?: string
-  type?: TaskTypeType
-}
+import type { FilterType } from "#schemas/filterSchemas.js"
 
 export class TaskIterator implements Iterable<Task> {
   private filters: FilterType
@@ -21,7 +12,14 @@ export class TaskIterator implements Iterable<Task> {
   ) {
     this.tasks = tasks
     this.taskLabelMap = taskLabelMap ?? new Map<string, string[]>()
-    this.filters = {}
+    this.filters = {
+      assignee: null,
+      dueDateFrom: null,
+      dueDateTo: null,
+      label: null,
+      priority: null,
+      type: null
+    }
   }
 
   filterBy(filters: FilterType): this {
