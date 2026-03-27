@@ -1,5 +1,6 @@
-import type { CreateTaskDto, PriorityType, TaskType, TaskTypeType } from "#models/task/types.js"
+import type { TaskType } from "#models/task/types.js"
 import type { Cloneable } from "#patterns/prototype/cloneable.js"
+import type { CreateTaskDto, PriorityType, TaskTypeType } from "#schemas/taskSchemas.js"
 
 export class Task implements Cloneable<CreateTaskDto> {
   public get assignee(): null | string {
