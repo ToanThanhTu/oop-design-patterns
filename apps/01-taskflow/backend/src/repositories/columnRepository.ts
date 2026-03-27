@@ -9,12 +9,12 @@ import { eq } from "drizzle-orm"
 export class ColumnRepository {
   constructor(private db: BetterSQLite3Database) {}
 
-  async create(column: CreateColumnDto): Promise<Column[]> {
+  async create(column: CreateColumnDto): Promise<Column | undefined> {
     const result = await this.db.insert(columnsTable).values(this.toRow(column)).returning()
 
     const columns = result.map((columnRow) => this.toColumn(columnRow))
 
-    return columns
+    return columns[0]
   }
 
   async delete(id: string): Promise<void> {
@@ -60,7 +60,7 @@ export class ColumnRepository {
     return columns[0]
   }
 
-  async update(columnId: string, column: UpdateColumnDto): Promise<Column[]> {
+  async update(columnId: string, column: UpdateColumnDto): Promise<Column | undefined> {
     const result = await this.db
       .update(columnsTable)
       .set(column)
@@ -69,7 +69,7 @@ export class ColumnRepository {
 
     const columns = result.map((columnRow) => this.toColumn(columnRow))
 
-    return columns
+    return columns[0]
   }
 
   private toColumn(row: typeof columnsTable.$inferSelect): Column {

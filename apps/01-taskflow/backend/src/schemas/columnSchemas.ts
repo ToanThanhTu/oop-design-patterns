@@ -11,3 +11,7 @@ export type CreateColumnDto = z.infer<typeof CreateColumnSchema>
 export const UpdateColumnSchema = z.partial(CreateColumnSchema)
 
 export type UpdateColumnDto = z.infer<typeof UpdateColumnSchema>
+
+export const ReorderColumnsSchema = z.array(z.uuid())
+
+export type ReorderColumnsDto = z.infer<typeof ReorderColumnsSchema>

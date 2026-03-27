@@ -45,7 +45,11 @@ export class TaskService {
         title: subtask.title,
       }
 
-      await this.subtaskService.create(newSubtask)
+      const clonedSubtask = await this.subtaskService.create(newSubtask)
+
+      if (!clonedSubtask) {
+        throw new Error(`Failed to clone subtask ${subtask.id}`)
+      }
     }
 
     // add to task labels
@@ -53,7 +57,11 @@ export class TaskService {
     const labelIds = taskLabelRecords.map((record) => record.labelId)
 
     for (const labelId of labelIds) {
-      await this.taskLabelService.add({ labelId, taskId: newTask.id })
+      const addedTaskLabel = await this.taskLabelService.add({ labelId, taskId: newTask.id })
+
+      if (!addedTaskLabel) {
+        throw new Error(`Failed to add cloned task ${newTask.id} label ${labelId} relation`)
+      }
     }
 
     return newTask
@@ -83,7 +91,7 @@ export class TaskService {
     return this.taskRepository.recreateRaw(task)
   }
 
-  update(taskId: string, task: UpdateTaskDto): Promise<Task[]> {
+  update(taskId: string, task: UpdateTaskDto): Promise<Task | undefined> {
     return this.taskRepository.update(taskId, task)
   }
 }

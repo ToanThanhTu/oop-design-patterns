@@ -49,7 +49,7 @@ export class TaskRepository {
     return tasks[0]
   }
 
-  async update(taskId: string, task: UpdateTaskDto): Promise<Task[]> {
+  async update(taskId: string, task: UpdateTaskDto): Promise<Task | undefined> {
     const result = await this.db
       .update(tasksTable)
       .set(task)
@@ -58,7 +58,7 @@ export class TaskRepository {
 
     const tasks = result.map((taskRow) => this.toTask(taskRow))
 
-    return tasks
+    return tasks[0]
   }
 
   // Convert Task instance to plain object for Drizzle for creation and update

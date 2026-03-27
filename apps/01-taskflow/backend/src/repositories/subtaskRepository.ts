@@ -9,12 +9,12 @@ import { eq } from "drizzle-orm"
 export class SubtaskRepository {
   constructor(private db: BetterSQLite3Database) {}
 
-  async create(subtask: CreateSubtaskDto): Promise<Subtask[]> {
+  async create(subtask: CreateSubtaskDto): Promise<Subtask | undefined> {
     const result = await this.db.insert(subtasksTable).values(this.toRow(subtask)).returning()
 
     const subtasks = result.map((subtaskRow) => this.toSubtask(subtaskRow))
 
-    return subtasks
+    return subtasks[0]
   }
 
   async delete(id: string): Promise<void> {
@@ -56,7 +56,7 @@ export class SubtaskRepository {
     return subtasks[0]
   }
 
-  async update(subtaskId: string, subtask: UpdateSubtaskDto): Promise<Subtask[]> {
+  async update(subtaskId: string, subtask: UpdateSubtaskDto): Promise<Subtask | undefined> {
     const result = await this.db
       .update(subtasksTable)
       .set(subtask)
@@ -65,7 +65,7 @@ export class SubtaskRepository {
 
     const subtasks = result.map((subtaskRow) => this.toSubtask(subtaskRow))
 
-    return subtasks
+    return subtasks[0]
   }
 
   private toRow(subtask: CreateSubtaskDto): typeof subtasksTable.$inferInsert {

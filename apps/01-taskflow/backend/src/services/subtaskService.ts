@@ -10,7 +10,7 @@ export class SubtaskService {
     this.subtaskRepository = subtaskRepository
   }
 
-  create(subtask: CreateSubtaskDto): Promise<Subtask[]> {
+  create(subtask: CreateSubtaskDto): Promise<Subtask | undefined> {
     return this.subtaskRepository.create(subtask)
   }
 
@@ -34,7 +34,7 @@ export class SubtaskService {
     return this.subtaskRepository.recreateRaw(subtask)
   }
 
-  update(subtaskId: string, subtask: UpdateSubtaskDto): Promise<Subtask[]> {
+  update(subtaskId: string, subtask: UpdateSubtaskDto): Promise<Subtask | undefined> {
     return this.subtaskRepository.update(subtaskId, subtask)
   }
 }

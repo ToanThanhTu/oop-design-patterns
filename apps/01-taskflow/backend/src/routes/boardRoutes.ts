@@ -1,12 +1,14 @@
 
 import { boardService, columnService } from "#bootstrap.js"
 import { type CreateBoardDto, CreateBoardSchema, type UpdateBoardDto, UpdateBoardSchema } from "#schemas/boardSchemas.js"
+import { ReorderColumnsSchema } from "#schemas/columnSchemas.js"
 import { FilterSchema } from "#schemas/filterSchemas.js"
 import { BadRequestError, NotFoundError } from "#utils/errors.js"
 import { type Request, type Response } from "express"
 import * as z from 'zod/mini'
 
 // Boards
+
 export const getBoards = async (_req: Request, res: Response) => {
   const result = await boardService.getAll()
 
@@ -28,11 +30,22 @@ export const createBoard = async (req: Request, res: Response) => {
   const board: CreateBoardDto = CreateBoardSchema.parse(req.body)
   const result = await boardService.create(board)
 
+  if (!result) {
+    throw new Error(`Failed to create Board`)
+  }
+
   res.status(201).send(result)
 }
 
 export const deleteBoard = async (req: Request, res: Response) => {
   const boardId = z.uuid().parse(req.params.id)
+
+  const existingBoard = await boardService.getById(boardId)
+
+  if (!existingBoard) {
+    throw new NotFoundError(`Board ${boardId} not found`)
+  }
+
   await boardService.delete(boardId)
 
   res.status(204).send()
@@ -52,7 +65,8 @@ export const updateBoard = async (req: Request, res: Response) => {
 }
 
 // Board Snapshots
-export const getBoardSnapshot = async (req: Request, res: Response) => {
+
+export const getBoardSnapshots = async (req: Request, res: Response) => {
   const boardId = z.uuid().parse(req.params.id)
 
   const result = await boardService.getSnapshotsByBoardId(boardId)
@@ -67,7 +81,7 @@ export const createBoardSnapshot = async (req: Request, res: Response) => {
   const result = await boardService.createSnapshot(boardId, description)
 
   if (!result) {
-    throw new NotFoundError(`Failed to create Board Snapshot, Board ${boardId} not found.`)
+    throw new Error(`Failed to create Board Snapshot.`)
   }
 
   res.status(201).send(result)
@@ -97,6 +111,8 @@ export const redoBoardSnapshot = async (req: Request, res: Response) => {
   res.send(result)
 }
 
+// Tasks
+
 export const getBoardTasks = async (req: Request, res: Response) => {
   const boardId = z.uuid().parse(req.params.id)
   const filters = FilterSchema.parse(req.query)
@@ -109,10 +125,21 @@ export const getBoardTasks = async (req: Request, res: Response) => {
   res.send(result)
 }
 
+// Columns
+
 export const getBoardColumns = async (req: Request, res: Response) => {
   const boardId = z.uuid().parse(req.params.id)
 
   const result = await columnService.getByBoardId(boardId)
+
+  res.send(result)
+}
+
+export const reorderColumns = async (req: Request, res: Response) => {
+  const boardId = z.uuid().parse(req.params.id)
+  const columnIds = ReorderColumnsSchema.parse(req.body.columnIds)
+
+  const result = await columnService.reorder(boardId, columnIds)
 
   res.send(result)
 }

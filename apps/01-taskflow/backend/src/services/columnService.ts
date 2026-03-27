@@ -3,6 +3,8 @@ import type { ColumnType } from "#models/column/types.js"
 import type { ColumnRepository } from "#repositories/columnRepository.js"
 import type { CreateColumnDto, UpdateColumnDto } from "#schemas/columnSchemas.js"
 
+import { BadRequestError } from "#utils/errors.js"
+
 export class ColumnService {
   private columnRepository: ColumnRepository
 
@@ -10,7 +12,7 @@ export class ColumnService {
     this.columnRepository = columnRepository
   }
 
-  create(column: CreateColumnDto): Promise<Column[]> {
+  create(column: CreateColumnDto): Promise<Column | undefined> {
     return this.columnRepository.create(column)
   }
 
@@ -38,7 +40,26 @@ export class ColumnService {
     return this.columnRepository.recreateRaw(column)
   }
 
-  update(columnId: string, column: UpdateColumnDto): Promise<Column[]> {
+  async reorder(boardId: string, orderedColumnIds: string[]): Promise<Column[]> {
+    const columns = await this.columnRepository.findByBoardId(boardId)
+
+    const newOrderColumnIdsSet = new Set(orderedColumnIds)
+
+    for (const column of columns) {
+      if (!newOrderColumnIdsSet.has(column.id)) {
+        throw new BadRequestError("Columns IDs don't match board columns.")
+      }
+    }
+
+    for (const column of columns) {
+      column.position = orderedColumnIds.indexOf(column.id)
+      await this.columnRepository.update(column.id, { position: column.position })
+    }
+
+    return columns
+  }
+
+  update(columnId: string, column: UpdateColumnDto): Promise<Column | undefined> {
     return this.columnRepository.update(columnId, column)
   }
 }
