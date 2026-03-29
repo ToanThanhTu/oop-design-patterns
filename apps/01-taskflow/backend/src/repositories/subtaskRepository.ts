@@ -1,10 +1,10 @@
-import type { SubtaskType } from "#models/subtask/types.js"
-import type { CreateSubtaskDto, UpdateSubtaskDto } from "#schemas/subtaskSchemas.js"
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
+import type { SubtaskType } from '#models/subtask/types.js'
+import type { CreateSubtaskDto, UpdateSubtaskDto } from '#schemas/subtaskSchemas.js'
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 
-import { subtasksTable } from "#db/schema.js"
-import { Subtask } from "#models/subtask/subtask.js"
-import { eq } from "drizzle-orm"
+import { subtasksTable } from '#db/schema.js'
+import { Subtask } from '#models/subtask/subtask.js'
+import { eq } from 'drizzle-orm'
 
 export class SubtaskRepository {
   constructor(private db: BetterSQLite3Database) {}

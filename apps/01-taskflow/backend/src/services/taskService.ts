@@ -1,12 +1,12 @@
-import type { Task } from "#models/task/task.js"
-import type { TaskType } from "#models/task/types.js"
-import type { TaskRepository } from "#repositories/taskRepository.js"
-import type { CreateSubtaskDto } from "#schemas/subtaskSchemas.js"
-import type { CreateTaskDto, UpdateTaskDto } from "#schemas/taskSchemas.js"
+import type { Task } from '#models/task/task.js'
+import type { TaskType } from '#models/task/types.js'
+import type { TaskRepository } from '#repositories/taskRepository.js'
+import type { CreateSubtaskDto } from '#schemas/subtaskSchemas.js'
+import type { CreateTaskDto, UpdateTaskDto } from '#schemas/taskSchemas.js'
 
-import type { TaskLabelService } from "./taskLabelService.js"
+import type { TaskLabelService } from './taskLabelService.js'
 
-import { SubtaskService } from "./subtaskService.js"
+import { SubtaskService } from './subtaskService.js'
 
 export class TaskService {
   private subtaskService: SubtaskService

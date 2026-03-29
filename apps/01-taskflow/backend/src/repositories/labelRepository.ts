@@ -1,9 +1,9 @@
-import type { CreateLabelDto, UpdateLabelDto } from "#schemas/labelSchemas.js"
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
+import type { CreateLabelDto, UpdateLabelDto } from '#schemas/labelSchemas.js'
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 
-import { labelsTable } from "#db/schema.js"
-import { Label } from "#models/label/label.js"
-import { eq } from "drizzle-orm"
+import { labelsTable } from '#db/schema.js'
+import { Label } from '#models/label/label.js'
+import { eq } from 'drizzle-orm'
 
 export class LabelRepository {
   constructor(private db: BetterSQLite3Database) {}

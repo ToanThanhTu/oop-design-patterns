@@ -1,9 +1,9 @@
-import type { CreateBoardDto, UpdateBoardDto } from "#schemas/boardSchemas.js"
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
+import type { CreateBoardDto, UpdateBoardDto } from '#schemas/boardSchemas.js'
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 
-import { boardsTable } from "#db/schema.js"
-import { Board } from "#models/board/board.js"
-import { eq } from "drizzle-orm"
+import { boardsTable } from '#db/schema.js'
+import { Board } from '#models/board/board.js'
+import { eq } from 'drizzle-orm'
 
 export class BoardRepository {
   constructor(private db: BetterSQLite3Database) {}

@@ -1,14 +1,14 @@
 // @ts-check
 
-import eslint from "@eslint/js"
-import tseslint from "typescript-eslint"
-import { defineConfig } from "eslint/config"
-import perfectionist from "eslint-plugin-perfectionist"
-import vitest from "@vitest/eslint-plugin"
+import eslint from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import { defineConfig } from 'eslint/config'
+import perfectionist from 'eslint-plugin-perfectionist'
+import vitest from '@vitest/eslint-plugin'
 
 export default defineConfig(
   {
-    ignores: ["**/*.js"],
+    ignores: ['**/*.js'],
   },
   eslint.configs.recommended,
   tseslint.configs.recommended,
@@ -21,15 +21,15 @@ export default defineConfig(
       },
     },
   },
-  perfectionist.configs["recommended-natural"],
+  perfectionist.configs['recommended-natural'],
   {
-    files: ["**/*.test.ts", "**/*.spec.ts"],
+    files: ['**/*.test.ts', '**/*.spec.ts'],
     plugins: {
       vitest,
     },
     rules: {
       ...vitest.configs.recommended.rules,
-      "@typescript-eslint/unbound-method": "off",
+      '@typescript-eslint/unbound-method': 'off',
     },
   },
 )

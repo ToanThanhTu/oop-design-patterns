@@ -1,4 +1,4 @@
-import type { SubtaskType } from "./types.js"
+import type { SubtaskType } from './types.js'
 
 export class Subtask {
   public get id(): string {

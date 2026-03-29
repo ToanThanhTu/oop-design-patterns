@@ -1,7 +1,7 @@
-import type { Subtask } from "#models/subtask/subtask.js"
-import type { SubtaskType } from "#models/subtask/types.js"
-import type { SubtaskRepository } from "#repositories/subtaskRepository.js"
-import type { CreateSubtaskDto, UpdateSubtaskDto } from "#schemas/subtaskSchemas.js"
+import type { Subtask } from '#models/subtask/subtask.js'
+import type { SubtaskType } from '#models/subtask/types.js'
+import type { SubtaskRepository } from '#repositories/subtaskRepository.js'
+import type { CreateSubtaskDto, UpdateSubtaskDto } from '#schemas/subtaskSchemas.js'
 
 export class SubtaskService {
   private subtaskRepository: SubtaskRepository

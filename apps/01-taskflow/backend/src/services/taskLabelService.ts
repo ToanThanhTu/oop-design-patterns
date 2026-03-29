@@ -1,6 +1,6 @@
-import type { TaskLabel } from "#models/taskLabel/taskLabel.js"
-import type { TaskLabelRepository } from "#repositories/taskLabelRepository.js"
-import type { AddTaskLabelDto, RemoveTaskLabelDto } from "#schemas/taskLabelSchemas.js"
+import type { TaskLabel } from '#models/taskLabel/taskLabel.js'
+import type { TaskLabelRepository } from '#repositories/taskLabelRepository.js'
+import type { AddTaskLabelDto, RemoveTaskLabelDto } from '#schemas/taskLabelSchemas.js'
 
 export class TaskLabelService {
   private taskLabelRepository: TaskLabelRepository

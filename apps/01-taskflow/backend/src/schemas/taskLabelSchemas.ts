@@ -1,4 +1,4 @@
-import * as z from "zod/mini"
+import * as z from 'zod/mini'
 
 export const AddTaskLabelSchema = z.object({
   labelId: z.uuid(),

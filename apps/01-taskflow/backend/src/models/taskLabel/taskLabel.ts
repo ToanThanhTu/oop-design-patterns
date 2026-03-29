@@ -1,4 +1,4 @@
-import type { TaskLabelType } from "./types.js"
+import type { TaskLabelType } from './types.js'
 
 export class TaskLabel {
   public get labelId(): string {

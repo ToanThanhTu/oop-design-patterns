@@ -1,9 +1,9 @@
-import type { NewSnapshot, Snapshot } from "#patterns/memento/types.js"
-import type { CreateSnapshotDto } from "#schemas/snapshotSchemas.js"
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
+import type { NewSnapshot, Snapshot } from '#patterns/memento/types.js'
+import type { CreateSnapshotDto } from '#schemas/snapshotSchemas.js'
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 
-import { snapshotsTable } from "#db/schema.js"
-import { eq } from "drizzle-orm"
+import { snapshotsTable } from '#db/schema.js'
+import { eq } from 'drizzle-orm'
 
 export class SnapshotRepository {
   constructor(private db: BetterSQLite3Database) {}

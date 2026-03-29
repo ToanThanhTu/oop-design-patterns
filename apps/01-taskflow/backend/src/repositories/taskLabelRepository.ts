@@ -1,9 +1,9 @@
-import type { AddTaskLabelDto, RemoveTaskLabelDto } from "#schemas/taskLabelSchemas.js"
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
+import type { AddTaskLabelDto, RemoveTaskLabelDto } from '#schemas/taskLabelSchemas.js'
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 
-import { taskLabelsTable } from "#db/schema.js"
-import { TaskLabel } from "#models/taskLabel/taskLabel.js"
-import { and, eq } from "drizzle-orm"
+import { taskLabelsTable } from '#db/schema.js'
+import { TaskLabel } from '#models/taskLabel/taskLabel.js'
+import { and, eq } from 'drizzle-orm'
 
 export class TaskLabelRepository {
   constructor(private db: BetterSQLite3Database) {}

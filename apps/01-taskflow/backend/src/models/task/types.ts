@@ -1,4 +1,4 @@
-import type { PriorityType, TaskTypeType } from "#schemas/taskSchemas.js"
+import type { PriorityType, TaskTypeType } from '#schemas/taskSchemas.js'
 
 export interface TaskType {
   assignee: null | string

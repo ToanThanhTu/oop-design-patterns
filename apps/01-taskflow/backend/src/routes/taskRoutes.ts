@@ -1,15 +1,15 @@
-import { subtaskService, taskLabelService, taskService } from "#bootstrap.js"
-import { AddTaskLabelSchema, RemoveTaskLabelSchema } from "#schemas/taskLabelSchemas.js"
-import { CreateTaskSchema, UpdateTaskSchema } from "#schemas/taskSchemas.js"
-import { NotFoundError } from "#utils/errors.js"
-import { type Request, type Response } from "express"
+import { subtaskService, taskLabelService, taskService } from '#bootstrap.js'
+import { AddTaskLabelSchema, RemoveTaskLabelSchema } from '#schemas/taskLabelSchemas.js'
+import { CreateTaskSchema, UpdateTaskSchema } from '#schemas/taskSchemas.js'
+import { NotFoundError } from '#utils/errors.js'
+import { type Request, type Response } from 'express'
 import * as z from 'zod/mini'
 
 // Tasks
 
 export const getTask = async (req: Request, res: Response) => {
   const taskId = z.uuid().parse(req.params.id)
-  
+
   const result = await taskService.getById(taskId)
 
   if (!result) {
@@ -21,12 +21,10 @@ export const getTask = async (req: Request, res: Response) => {
 
 export const createTask = async (req: Request, res: Response) => {
   const columnId = z.uuid().parse(req.params.id)
-  const newTaskData = z
-    .omit(CreateTaskSchema, { columnId: true })
-    .parse(req.body)
+  const newTaskData = z.omit(CreateTaskSchema, { columnId: true }).parse(req.body)
 
   const newTask = CreateTaskSchema.parse({ columnId, ...newTaskData })
-  
+
   const result = await taskService.create(newTask)
 
   if (!result) {
@@ -39,7 +37,7 @@ export const createTask = async (req: Request, res: Response) => {
 export const updateTask = async (req: Request, res: Response) => {
   const taskId = z.uuid().parse(req.params.id)
   const updatedTask = UpdateTaskSchema.parse(req.body)
-  
+
   const result = await taskService.update(taskId, updatedTask)
 
   if (!result) {
@@ -57,7 +55,7 @@ export const deleteTask = async (req: Request, res: Response) => {
   if (!existingTask) {
     throw new NotFoundError(`Task ${taskId} not found.`)
   }
-  
+
   await taskService.delete(taskId)
 
   res.status(204).send()
@@ -65,7 +63,7 @@ export const deleteTask = async (req: Request, res: Response) => {
 
 export const cloneTask = async (req: Request, res: Response) => {
   const taskId = z.uuid().parse(req.params.id)
-  
+
   const result = await taskService.clone(taskId)
 
   if (!result) {

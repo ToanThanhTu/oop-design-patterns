@@ -1,6 +1,6 @@
-import type { TaskType } from "#models/task/types.js"
-import type { Cloneable } from "#patterns/prototype/cloneable.js"
-import type { CreateTaskDto, PriorityType, TaskTypeType } from "#schemas/taskSchemas.js"
+import type { TaskType } from '#models/task/types.js'
+import type { Cloneable } from '#patterns/prototype/cloneable.js'
+import type { CreateTaskDto, PriorityType, TaskTypeType } from '#schemas/taskSchemas.js'
 
 export class Task implements Cloneable<CreateTaskDto> {
   public get assignee(): null | string {
@@ -64,7 +64,7 @@ export class Task implements Cloneable<CreateTaskDto> {
   }
 
   public set position(value: number) {
-    if (value < 0 || typeof value !== "number") {
+    if (value < 0 || typeof value !== 'number') {
       throw new Error(`Invalid position: ${value}`)
     }
 
@@ -76,7 +76,7 @@ export class Task implements Cloneable<CreateTaskDto> {
   }
 
   public set priority(value: PriorityType) {
-    const valid: PriorityType[] = ["low", "medium", "high"]
+    const valid: PriorityType[] = ['low', 'medium', 'high']
     if (!valid.includes(value)) {
       throw new Error(`Invalid priority: ${value}`)
     }
@@ -97,7 +97,7 @@ export class Task implements Cloneable<CreateTaskDto> {
   }
 
   public set type(value: TaskTypeType) {
-    const valid: TaskTypeType[] = ["bug", "feature", "story", "task"]
+    const valid: TaskTypeType[] = ['bug', 'feature', 'story', 'task']
     if (!valid.includes(value)) {
       throw new Error(`Invalid type: ${value}`)
     }
@@ -123,7 +123,7 @@ export class Task implements Cloneable<CreateTaskDto> {
   protected _position: number
   protected _priority: PriorityType
   protected _title: string
-  protected _type: TaskTypeType = "task"
+  protected _type: TaskTypeType = 'task'
   protected _updatedAt: string
 
   constructor({

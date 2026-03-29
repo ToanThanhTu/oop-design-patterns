@@ -1,24 +1,24 @@
-import type { Board } from "#models/board/board.js"
-import type { BoardType } from "#models/board/types.js"
-import type { Column } from "#models/column/column.js"
-import type { ColumnType } from "#models/column/types.js"
-import type { SubtaskType } from "#models/subtask/types.js"
-import type { Task } from "#models/task/task.js"
-import type { TaskType } from "#models/task/types.js"
-import type { TaskLabelType } from "#models/taskLabel/types.js"
-import type { BoardStateType, Snapshot } from "#patterns/memento/types.js"
-import type { BoardRepository } from "#repositories/boardRepository.js"
-import type { SnapshotRepository } from "#repositories/snapshotRepository.js"
-import type { CreateBoardDto, UpdateBoardDto } from "#schemas/boardSchemas.js"
-import type { SubtaskService } from "#services/subtaskService.js"
-import type { TaskLabelService } from "#services/taskLabelService.js"
+import type { Board } from '#models/board/board.js'
+import type { BoardType } from '#models/board/types.js'
+import type { Column } from '#models/column/column.js'
+import type { ColumnType } from '#models/column/types.js'
+import type { SubtaskType } from '#models/subtask/types.js'
+import type { Task } from '#models/task/task.js'
+import type { TaskType } from '#models/task/types.js'
+import type { TaskLabelType } from '#models/taskLabel/types.js'
+import type { BoardStateType, Snapshot } from '#patterns/memento/types.js'
+import type { BoardRepository } from '#repositories/boardRepository.js'
+import type { SnapshotRepository } from '#repositories/snapshotRepository.js'
+import type { CreateBoardDto, UpdateBoardDto } from '#schemas/boardSchemas.js'
+import type { SubtaskService } from '#services/subtaskService.js'
+import type { TaskLabelService } from '#services/taskLabelService.js'
 
-import { TaskIterator } from "#patterns/iterator/taskIterator.js"
-import { BoardHistory } from "#patterns/memento/boardHistory.js"
-import { BoardSnapshot } from "#patterns/memento/boardSnapshot.js"
+import { TaskIterator } from '#patterns/iterator/taskIterator.js'
+import { BoardHistory } from '#patterns/memento/boardHistory.js'
+import { BoardSnapshot } from '#patterns/memento/boardSnapshot.js'
 
-import type { ColumnService } from "./columnService.js"
-import type { TaskService } from "./taskService.js"
+import type { ColumnService } from './columnService.js'
+import type { TaskService } from './taskService.js'
 
 export class BoardService {
   private boardHistoryMap = new Map<string, BoardHistory>()

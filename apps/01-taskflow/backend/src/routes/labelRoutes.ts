@@ -1,10 +1,10 @@
-import { labelService } from "#bootstrap.js"
-import { CreateLabelSchema } from "#schemas/labelSchemas.js"
-import { type Request, type Response } from "express"
+import { labelService } from '#bootstrap.js'
+import { CreateLabelSchema } from '#schemas/labelSchemas.js'
+import { type Request, type Response } from 'express'
 
 export const createLabel = async (req: Request, res: Response) => {
   const newLabel = CreateLabelSchema.parse(req.body)
-  
+
   const result = await labelService.create(newLabel)
 
   if (!result) {

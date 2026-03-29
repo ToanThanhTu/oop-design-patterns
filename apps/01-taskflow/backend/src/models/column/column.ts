@@ -1,4 +1,4 @@
-import type { ColumnType } from "#models/column/types.js"
+import type { ColumnType } from '#models/column/types.js'
 
 export class Column {
   public get boardId(): string {

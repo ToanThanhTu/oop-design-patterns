@@ -1,10 +1,10 @@
-import type { TaskType } from "#models/task/types.js"
-import type { CreateTaskDto, UpdateTaskDto } from "#schemas/taskSchemas.js"
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
+import type { TaskType } from '#models/task/types.js'
+import type { CreateTaskDto, UpdateTaskDto } from '#schemas/taskSchemas.js'
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 
-import { tasksTable } from "#db/schema.js"
-import { Task } from "#models/task/task.js"
-import { eq } from "drizzle-orm"
+import { tasksTable } from '#db/schema.js'
+import { Task } from '#models/task/task.js'
+import { eq } from 'drizzle-orm'
 
 export class TaskRepository {
   constructor(private db: BetterSQLite3Database) {}

@@ -1,6 +1,6 @@
-import type { Label } from "#models/label/label.js";
-import type { LabelRepository } from "#repositories/labelRepository.js";
-import type { CreateLabelDto } from "#schemas/labelSchemas.js";
+import type { Label } from '#models/label/label.js'
+import type { LabelRepository } from '#repositories/labelRepository.js'
+import type { CreateLabelDto } from '#schemas/labelSchemas.js'
 
 export class LabelService {
   private labelRepository: LabelRepository

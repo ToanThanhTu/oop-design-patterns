@@ -8,7 +8,7 @@ export const FilterSchema = z.object({
   dueDateTo: z.nullable(z.string()),
   label: z.nullable(z.string()),
   priority: z.nullable(z.string()),
-  type: z.nullable(TaskTypeSchema)
+  type: z.nullable(TaskTypeSchema),
 })
 
 export type FilterType = z.infer<typeof FilterSchema>

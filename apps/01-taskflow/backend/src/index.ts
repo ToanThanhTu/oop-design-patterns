@@ -1,14 +1,36 @@
-import { errorHandler } from "#middleware/errorHandler.js"
-import { createBoard, createBoardSnapshot, deleteBoard, getBoard, getBoardColumns, getBoards, getBoardSnapshots, getBoardTasks, redoBoardSnapshot, reorderColumns, undoBoardSnapshot, updateBoard } from "#routes/boardRoutes.js"
-import { createColumn, deleteColumn, getColumn, updateColumn } from "#routes/columnRoutes.js"
-import { createLabel, getLabels } from "#routes/labelRoutes.js"
-import { createSubtask, deleteSubtask, updateSubtask } from "#routes/subtaskRoutes.js"
-import { attachLabel, cloneTask, createTask, deleteTask, detachLabel, getTask, getTaskSubtasks, updateTask } from "#routes/taskRoutes.js"
-import cors from "cors"
-import "dotenv/config"
-import express from "express"
+import { errorHandler } from '#middleware/errorHandler.js'
+import {
+  createBoard,
+  createBoardSnapshot,
+  deleteBoard,
+  getBoard,
+  getBoardColumns,
+  getBoards,
+  getBoardSnapshots,
+  getBoardTasks,
+  redoBoardSnapshot,
+  reorderColumns,
+  undoBoardSnapshot,
+  updateBoard,
+} from '#routes/boardRoutes.js'
+import { createColumn, deleteColumn, getColumn, updateColumn } from '#routes/columnRoutes.js'
+import { createLabel, getLabels } from '#routes/labelRoutes.js'
+import { createSubtask, deleteSubtask, updateSubtask } from '#routes/subtaskRoutes.js'
+import {
+  attachLabel,
+  cloneTask,
+  createTask,
+  deleteTask,
+  detachLabel,
+  getTask,
+  getTaskSubtasks,
+  updateTask,
+} from '#routes/taskRoutes.js'
+import cors from 'cors'
+import 'dotenv/config'
+import express from 'express'
 
-const port = process.env.PORT ?? "3001"
+const port = process.env.PORT ?? '3001'
 
 const app = express()
 app.use(cors())

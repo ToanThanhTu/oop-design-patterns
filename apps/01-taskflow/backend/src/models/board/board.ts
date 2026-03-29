@@ -1,4 +1,4 @@
-import type { BoardType } from "#models/board/types.js"
+import type { BoardType } from '#models/board/types.js'
 
 export class Board {
   public get createdAt(): string {

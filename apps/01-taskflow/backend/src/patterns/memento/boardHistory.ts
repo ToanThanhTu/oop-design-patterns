@@ -1,4 +1,4 @@
-import type { BoardSnapshot } from "#patterns/memento/boardSnapshot.js"
+import type { BoardSnapshot } from '#patterns/memento/boardSnapshot.js'
 
 export class BoardHistory {
   private poppedSnapshots: BoardSnapshot[] = []

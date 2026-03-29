@@ -94,12 +94,8 @@
           "name": "columns_table_board_id_boards_table_id_fk",
           "tableFrom": "columns_table",
           "tableTo": "boards_table",
-          "columnsFrom": [
-            "board_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["board_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -191,12 +187,8 @@
           "name": "snapshots_table_board_id_boards_table_id_fk",
           "tableFrom": "snapshots_table",
           "tableTo": "boards_table",
-          "columnsFrom": [
-            "board_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["board_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -251,12 +243,8 @@
           "name": "subtasks_table_task_id_tasks_table_id_fk",
           "tableFrom": "subtasks_table",
           "tableTo": "tasks_table",
-          "columnsFrom": [
-            "task_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["task_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -289,12 +277,8 @@
           "name": "task_labels_table_label_id_labels_table_id_fk",
           "tableFrom": "task_labels_table",
           "tableTo": "labels_table",
-          "columnsFrom": [
-            "label_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["label_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -302,12 +286,8 @@
           "name": "task_labels_table_task_id_tasks_table_id_fk",
           "tableFrom": "task_labels_table",
           "tableTo": "tasks_table",
-          "columnsFrom": [
-            "task_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["task_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -413,12 +393,8 @@
           "name": "tasks_table_column_id_columns_table_id_fk",
           "tableFrom": "tasks_table",
           "tableTo": "columns_table",
-          "columnsFrom": [
-            "column_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["column_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

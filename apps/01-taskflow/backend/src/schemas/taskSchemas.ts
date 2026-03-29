@@ -1,7 +1,7 @@
-import * as z from "zod/mini"
+import * as z from 'zod/mini'
 
-export const PrioritySchema = z.enum(["low", "medium", "high"])
-export const TaskTypeSchema = z.enum(["bug", "feature", "story", "task"])
+export const PrioritySchema = z.enum(['low', 'medium', 'high'])
+export const TaskTypeSchema = z.enum(['bug', 'feature', 'story', 'task'])
 
 export type PriorityType = z.infer<typeof PrioritySchema>
 export type TaskTypeType = z.infer<typeof TaskTypeSchema>

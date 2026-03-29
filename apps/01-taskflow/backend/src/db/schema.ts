@@ -1,13 +1,13 @@
-import { timestamps } from "#db/columns.helpers.js"
+import { timestamps } from '#db/columns.helpers.js'
 import {
   type AnySQLiteColumn,
   int,
   primaryKey,
   sqliteTable as table,
   text,
-} from "drizzle-orm/sqlite-core"
+} from 'drizzle-orm/sqlite-core'
 
-export const boardsTable = table("boards_table", {
+export const boardsTable = table('boards_table', {
   id: text()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -15,8 +15,8 @@ export const boardsTable = table("boards_table", {
   ...timestamps,
 })
 
-export const columnsTable = table("columns_table", {
-  boardId: text("board_id")
+export const columnsTable = table('columns_table', {
+  boardId: text('board_id')
     .notNull()
     .references((): AnySQLiteColumn => boardsTable.id, { onDelete: 'cascade' }),
   id: text()
@@ -27,37 +27,41 @@ export const columnsTable = table("columns_table", {
   ...timestamps,
 })
 
-export const tasksTable = table("tasks_table", {
+export const tasksTable = table('tasks_table', {
   assignee: text(),
-  columnId: text("column_id")
+  columnId: text('column_id')
     .references((): AnySQLiteColumn => columnsTable.id, { onDelete: 'cascade' })
     .notNull(),
   description: text(),
-  dueDate: text("due_date"),
+  dueDate: text('due_date'),
   id: text()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  isTemplate: int("is_template", { mode: "boolean" }).notNull().default(false),
+  isTemplate: int('is_template', { mode: 'boolean' }).notNull().default(false),
   position: int().notNull(),
-  priority: text({ enum: ["high", "low", "medium"] }).notNull().default("medium"),
+  priority: text({ enum: ['high', 'low', 'medium'] })
+    .notNull()
+    .default('medium'),
   title: text().notNull(),
-  type: text({ enum: ["bug", "feature", "story", "task"] }).notNull().default("task"),
+  type: text({ enum: ['bug', 'feature', 'story', 'task'] })
+    .notNull()
+    .default('task'),
   ...timestamps,
 })
 
-export const subtasksTable = table("subtasks_table", {
+export const subtasksTable = table('subtasks_table', {
   id: text()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  isComplete: int("is_complete", { mode: 'boolean' }).notNull().default(false),
+  isComplete: int('is_complete', { mode: 'boolean' }).notNull().default(false),
   position: int().notNull(),
-  taskId: text("task_id")
+  taskId: text('task_id')
     .notNull()
     .references((): AnySQLiteColumn => tasksTable.id, { onDelete: 'cascade' }),
   title: text().notNull(),
 })
 
-export const labelsTable = table("labels_table", {
+export const labelsTable = table('labels_table', {
   color: text().notNull(),
   id: text()
     .primaryKey()
@@ -66,20 +70,20 @@ export const labelsTable = table("labels_table", {
 })
 
 export const taskLabelsTable = table(
-  "task_labels_table",
+  'task_labels_table',
   {
-    labelId: text("label_id")
+    labelId: text('label_id')
       .notNull()
       .references((): AnySQLiteColumn => labelsTable.id, { onDelete: 'cascade' }),
-    taskId: text("task_id")
+    taskId: text('task_id')
       .notNull()
       .references((): AnySQLiteColumn => tasksTable.id, { onDelete: 'cascade' }),
   },
   (table) => [primaryKey({ columns: [table.labelId, table.taskId] })],
 )
 
-export const snapshotsTable = table("snapshots_table", {
-  boardId: text("board_id")
+export const snapshotsTable = table('snapshots_table', {
+  boardId: text('board_id')
     .notNull()
     .references((): AnySQLiteColumn => boardsTable.id, { onDelete: 'cascade' }),
   description: text(),
