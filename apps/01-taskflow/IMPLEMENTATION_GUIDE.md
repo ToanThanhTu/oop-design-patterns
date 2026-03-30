@@ -415,42 +415,370 @@ Labels:
 
 ---
 
-### Step 11: Frontend (React + Vite)
+### Step 11: Frontend Setup (React + Vite + TypeScript)
 
-**Goal:** Build a Kanban board UI that exercises all the backend patterns.
+**Goal:** Scaffold a React project and establish the foundation.
 
-This is last because the frontend is a thin layer over the API. The OOP learning happens in the backend.
+**Tasks:**
+1. Run `pnpm create vite .` inside `frontend/` -- choose React + TypeScript + SWC
+2. Install Tailwind CSS v4 and configure it
+3. Install React Router for client-side routing
+4. Set up a project structure (see below)
+5. Create an API client module for all backend calls
+6. Run `pnpm dev` and verify the Vite dev server starts
 
-**Key UI features:**
-- Board view with draggable columns and tasks
-- Task detail modal (edit, view subtasks, manage labels)
-- "Clone from template" button (triggers Prototype)
-- Undo/Redo buttons (triggers Memento)
-- Filter bar (triggers Iterator)
+**Project Structure:**
+```
+frontend/
+  src/
+    api/                  # API client functions (one file per resource)
+      boardApi.ts
+      taskApi.ts
+      columnApi.ts
+      subtaskApi.ts
+      labelApi.ts
+    components/           # Reusable UI components
+      ui/                 # Generic UI (Button, Modal, Input, etc.)
+      board/              # Board-specific components
+      task/               # Task-specific components
+    hooks/                # Custom React hooks
+    pages/                # Route-level page components
+      BoardListPage.tsx
+      BoardPage.tsx
+    types/                # Shared TypeScript types (mirrors backend DTOs)
+    App.tsx               # Router + layout
+    main.tsx              # Entry point
+```
+
+**Hints -- API Client:**
+- Create a base `fetch` wrapper that handles `Content-Type: application/json`, error parsing, and the base URL
+- Each API file exports functions like `getBoards()`, `createBoard(data)`, etc.
+- Keep API logic separate from components -- components call hooks, hooks call API functions
+- Store the API base URL in an environment variable (`VITE_API_URL`)
+
+**Hints -- Tailwind CSS:**
+- Tailwind v4 uses a CSS-first config approach -- no `tailwind.config.js` needed
+- Import Tailwind in your main CSS file with `@import "tailwindcss"`
+- Use `cn()` helper (clsx + tailwind-merge) for conditional class composition
+
+**React Concepts to Review:**
+- **JSX** -- it's syntactic sugar for `React.createElement()`. Understand what JSX compiles to
+- **Components** -- functions that return JSX. Props flow down, events flow up
+- **Strict Mode** -- `<React.StrictMode>` in `main.tsx` intentionally double-renders in dev to catch bugs. Don't remove it
 
 **Resources:**
 - Vite + React setup: https://vite.dev/guide/
-- React docs: https://react.dev/
+- React Quick Start: https://react.dev/learn
+- Tailwind CSS v4 installation: https://tailwindcss.com/docs/installation/vite
+- React Router v7 docs: https://reactrouter.com/start/framework/installation
+
+---
+
+### Step 12: Routing & Layout
+
+**Goal:** Set up client-side routing and the app shell.
+
+**Tasks:**
+1. Configure React Router with routes for board list and board detail
+2. Create a root layout component with a header/navbar
+3. Create placeholder page components (`BoardListPage`, `BoardPage`)
+4. Verify navigation works between pages
+
+**Routes:**
+```
+/                → BoardListPage (list all boards)
+/boards/:id      → BoardPage (Kanban board view)
+```
+
+**Hints -- React Router:**
+- Use `createBrowserRouter` + `RouterProvider` for the modern approach
+- Use `useParams()` to read `:id` from the URL
+- Use `useNavigate()` for programmatic navigation
+- Use `<Link>` instead of `<a>` for client-side navigation (no full page reload)
+- Use `<Outlet />` in layout components to render child routes
+
+**React Concepts to Review:**
+- **Conditional Rendering** -- `{condition && <Component />}` or ternary `{condition ? <A /> : <B />}`
+- **Lists & Keys** -- always provide a unique `key` prop when rendering lists with `.map()`. Keys help React identify which items changed
+
+**Resources:**
+- React Router tutorial: https://reactrouter.com/start/framework/routing
+- React Conditional Rendering: https://react.dev/learn/conditional-rendering
+- React Lists and Keys: https://react.dev/learn/rendering-lists
+
+---
+
+### Step 13: State Management & Data Fetching
+
+**Goal:** Fetch data from your backend API and manage it in React state.
+
+**Tasks:**
+1. Fetch and display the list of boards on `BoardListPage`
+2. Fetch and display board details (columns + tasks) on `BoardPage`
+3. Handle loading, error, and empty states for all data fetching
+4. Create a board and navigate to it
+
+**Hints -- useState & useEffect:**
+- `useState` holds local component state. The setter triggers a re-render
+- `useEffect` runs side effects after render. Use it for data fetching (for now)
+- Always include a cleanup function in `useEffect` when setting up subscriptions
+- The dependency array controls when the effect re-runs: `[]` = once on mount, `[id]` = when `id` changes
+
+**Hints -- Data Fetching Pattern:**
+```
+1. Set loading state → true
+2. Call API function
+3. On success → set data, set loading → false
+4. On error → set error state, set loading → false
+```
+- Extract this pattern into a custom hook (e.g., `useApi` or `useFetch`) to avoid repeating it
+- Show a loading spinner or skeleton while data is loading
+- Show an error message with a retry button on failure
+
+**Hints -- Lifting State:**
+- When sibling components need the same data, lift the state to their common parent
+- Pass data down as props, pass update functions down as callbacks
+- Don't lift state higher than necessary -- keep it as close to where it's used as possible
+
+**React Concepts to Review:**
+- **useState** -- immutable updates. Never mutate state directly. For arrays: `setItems([...items, newItem])`, not `items.push(newItem)`
+- **useEffect** -- the mental model is synchronization, not lifecycle. "Keep this in sync with that"
+- **Derived State** -- if a value can be computed from existing state/props, don't store it in `useState`. Just compute it during render
+- **Rendering** -- React re-renders when state changes. A re-render ≠ a DOM update. React diffs the virtual DOM and only updates what changed
+
+**Resources:**
+- React useState: https://react.dev/reference/react/useState
+- React useEffect: https://react.dev/reference/react/useEffect
+- You Might Not Need an Effect: https://react.dev/learn/you-might-not-need-an-effect
+- Thinking in React: https://react.dev/learn/thinking-in-react
+
+---
+
+### Step 14: Board View -- Columns & Tasks (Kanban Layout)
+
+**Goal:** Build the core Kanban board UI with columns and task cards.
+
+**Tasks:**
+1. Create a `BoardColumn` component that displays a column with its tasks
+2. Create a `TaskCard` component for individual tasks in a column
+3. Layout columns horizontally (flexbox or grid, scrollable if many columns)
+4. Display task metadata on cards (title, priority badge, assignee, labels)
+5. Add "Create Column" and "Create Task" functionality with forms
+
+**Hints -- Component Composition:**
+- `BoardPage` → fetches data, passes to children
+- `BoardColumn` → receives column + tasks as props, renders task cards
+- `TaskCard` → receives a single task as props, renders the card UI
+- Keep components small and focused. If a component does too many things, split it
+
+**Hints -- Forms:**
+- Use controlled components: input value comes from state, onChange updates state
+- For simple forms (create board, create column), inline state is fine
+- For complex forms (create/edit task with many fields), consider React Hook Form + Zod
+- Validate on submit, show inline error messages
+
+**Hints -- Prop Drilling vs Context:**
+- Passing props 2-3 levels deep is fine. Don't reach for Context too early
+- If you find yourself passing the same data through 4+ levels, consider Context or restructuring
+- Context is for "global-ish" data: current user, theme, locale -- not for every piece of state
+
+**React Concepts to Review:**
+- **Props** -- read-only data passed from parent to child. Think of them as function arguments
+- **Children** -- `props.children` lets you compose components like HTML elements
+- **Controlled vs Uncontrolled** -- controlled = React owns the value (via state), uncontrolled = DOM owns it (via ref). Prefer controlled for forms
+- **Composition over Inheritance** -- React favors composition. Use props and children to customize behavior, not class hierarchies
+
+**Resources:**
+- React Props: https://react.dev/learn/passing-props-to-a-component
+- React Forms: https://react.dev/reference/react-dom/components/input
+- React Context: https://react.dev/learn/passing-data-deeply-with-context
+- React Hook Form: https://react-hook-form.com/get-started
+- Zod + React Hook Form: https://react-hook-form.com/get-started#SchemaValidation
+
+---
+
+### Step 15: Task Detail Modal
+
+**Goal:** Build a modal for viewing and editing task details, subtasks, and labels.
+
+**Tasks:**
+1. Create a `Modal` component (reusable, renders via portal)
+2. Create a `TaskDetailModal` that shows full task info
+3. Add inline editing for task fields (title, description, priority, assignee, due date)
+4. Display and manage subtasks (add, toggle complete, delete)
+5. Display and manage labels (attach, detach)
+
+**Hints -- Modals:**
+- Use `createPortal()` to render the modal at the document root (avoids z-index/overflow issues)
+- Close on backdrop click and Escape key
+- Trap focus inside the modal for accessibility
+- Control open/close state in the parent component, not the modal itself
+
+**Hints -- Optimistic Updates:**
+- When the user toggles a subtask, update the UI immediately, then sync with the backend
+- If the API call fails, revert the optimistic update and show an error
+- This makes the UI feel instant instead of waiting for network round-trips
+
+**React Concepts to Review:**
+- **useRef** -- for DOM references (focus management in modals), or mutable values that don't trigger re-renders
+- **Portals** -- `createPortal(jsx, domNode)` renders children outside the parent DOM hierarchy while preserving React context
+- **Event Handling** -- `onClick`, `onSubmit`, `onKeyDown`. Always `e.preventDefault()` on form submit. Event handlers receive synthetic events
+- **Callback Props** -- pass functions from parent to child: `<TaskCard onEdit={handleEdit} />`. The child calls it, the parent handles the logic
+
+**Resources:**
+- React createPortal: https://react.dev/reference/react-dom/createPortal
+- React useRef: https://react.dev/reference/react/useRef
+- React Event Handling: https://react.dev/learn/responding-to-events
+- Accessible Modals (WAI-ARIA): https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+
+---
+
+### Step 16: Clone from Template (Prototype Pattern UI)
+
+**Goal:** Build the UI for cloning tasks -- the frontend counterpart of the Prototype pattern.
+
+**Tasks:**
+1. Add a "Clone" button on task cards (or in the task detail modal)
+2. On click, call `POST /tasks/:id/clone`
+3. Show the cloned task appear in the same column
+4. Add a "Templates" section that lists template tasks (`isTemplate: true`)
+5. Allow cloning from templates into a target column
+
+**Hints:**
+- The backend does all the heavy lifting (deep copy of subtasks + labels). The frontend just calls one endpoint
+- After cloning, you need to refresh the task list or optimistically add the new task to the UI
+- Consider showing a brief success toast/notification after cloning
+
+**React Concepts to Review:**
+- **Updating Arrays in State** -- to add a cloned task: `setTasks(prev => [...prev, clonedTask])`. Never mutate
+- **useMemo** -- if you're filtering template vs non-template tasks for display, `useMemo` avoids recomputing on every render. But only use it if you measure a benefit
+
+**Resources:**
+- React Updating Arrays in State: https://react.dev/learn/updating-arrays-in-state
+- React useMemo: https://react.dev/reference/react/useMemo
+
+---
+
+### Step 17: Undo/Redo (Memento Pattern UI)
+
+**Goal:** Build undo/redo controls that exercise the Memento pattern.
+
+**Tasks:**
+1. Add Undo and Redo buttons to the board header
+2. Add a "Save Snapshot" button with an optional description input
+3. On Undo → call `POST /boards/:id/undo`, refresh the board
+4. On Redo → call `POST /boards/:id/redo`, refresh the board
+5. Show snapshot history list (`GET /boards/:id/snapshots`)
+6. Disable Undo/Redo buttons when there's nothing to undo/redo
+
+**Hints:**
+- After undo/redo, the entire board state changes (columns, tasks, subtasks, labels). Refetch everything
+- The disabled state of undo/redo buttons is tricky -- your backend doesn't expose "can undo?" directly. Options: track it client-side, or just handle the 400 error gracefully
+- Show a confirmation before undo -- "This will revert to the previous saved state"
+
+**React Concepts to Review:**
+- **useCallback** -- if you're passing undo/redo handlers to child components, `useCallback` prevents unnecessary re-renders of those children. Same rule as `useMemo`: only if needed
+- **Conditional Disabling** -- `<button disabled={!canUndo}>Undo</button>`. Disabled buttons should look visually different (lower opacity, no hover effects)
+
+**Resources:**
+- React useCallback: https://react.dev/reference/react/useCallback
+
+---
+
+### Step 18: Filter Bar (Iterator Pattern UI)
+
+**Goal:** Build a filter UI that exercises the Iterator pattern on the backend.
+
+**Tasks:**
+1. Create a `FilterBar` component with dropdowns/inputs for: priority, assignee, type, label, due date range
+2. On filter change, call `GET /boards/:id/tasks?priority=high&assignee=alice...`
+3. Display filtered results (replace the normal column view with a flat filtered list, or highlight matching tasks)
+4. Add a "Clear Filters" button to reset
+5. Show the active filter count as a badge
+
+**Hints:**
+- Use query parameters for filters. When any filter changes, rebuild the query string and refetch
+- Debounce text inputs (assignee name) to avoid firing API calls on every keystroke
+- The filtered view could be a separate mode: "Board View" (columns) vs "Filter View" (flat list)
+
+**React Concepts to Review:**
+- **Custom Hooks** -- extract the filter logic into `useTaskFilters()` that manages filter state and returns `{ filters, setFilter, clearFilters, filteredTasks }`
+- **Debouncing** -- delay API calls until the user stops typing. Implement with `setTimeout` in a `useEffect`, or use a `useDebouncedValue` hook
+- **URL State** -- consider syncing filters to the URL query string so filtered views are shareable/bookmarkable. Use `useSearchParams()` from React Router
+
+**Resources:**
+- React Custom Hooks: https://react.dev/learn/reusing-logic-with-custom-hooks
+- React Router useSearchParams: https://reactrouter.com/en/main/hooks/use-search-params
+- Debounce pattern: https://usehooks.com/usedebounce
+
+---
+
+### Step 19: Polish & Accessibility
+
+**Goal:** Improve UX, handle edge cases, and ensure accessibility basics.
+
+**Tasks:**
+1. Add loading skeletons for boards, columns, and tasks
+2. Add empty states ("No boards yet", "No tasks in this column")
+3. Add error boundaries to catch rendering errors gracefully
+4. Add keyboard navigation (Tab through task cards, Enter to open detail)
+5. Add proper ARIA labels on interactive elements
+6. Add toast notifications for success/error feedback
+7. Responsive layout (works on mobile screens)
+
+**Hints -- Error Boundaries:**
+- Error boundaries are class components (the one place React still needs classes!)
+- They catch errors during rendering, not in event handlers or async code
+- Wrap major sections independently so one crash doesn't take down the whole app
+
+**Hints -- Accessibility:**
+- Every interactive element must be keyboard accessible
+- Use semantic HTML: `<button>` not `<div onClick>`, `<nav>`, `<main>`, `<header>`
+- Color is never the only indicator -- add text or icons alongside color badges
+- Test with a screen reader (VoiceOver on Mac, NVDA on Windows)
+
+**React Concepts to Review:**
+- **Error Boundaries** -- `componentDidCatch` + `getDerivedStateFromError`. The only remaining use case for class components
+- **React.Suspense** -- for lazy loading components. `<Suspense fallback={<Spinner />}>`
+- **React.lazy** -- code-split routes: `const BoardPage = lazy(() => import('./pages/BoardPage'))`
+- **Fragments** -- `<></>` avoids unnecessary wrapper divs in the DOM
+
+**Resources:**
+- React Error Boundaries: https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary
+- React Suspense: https://react.dev/reference/react/Suspense
+- Web Accessibility (a11y): https://web.dev/learn/accessibility
+- ARIA Authoring Practices: https://www.w3.org/WAI/ARIA/apg/
 
 ---
 
 ## Recommended Implementation Order
 
 ```
-Step 1  → Project setup (get pnpm dev working)
-Step 2  → Database schema (Drizzle tables + migrations)
-Step 3  → OOP models (Task, Board, Column classes) ← core OOP learning
-Step 4  → Prototype pattern (clone) ← first pattern
-Step 5  → Memento pattern (snapshots) ← second pattern
-Step 6  → Iterator pattern (traversal) ← third pattern
-Step 7  → Repositories (wire models to DB)
-Step 8  → Services (wire patterns to repositories)
-Step 9  → Routes & validation (expose via API)
-Step 10 → Error handling
-Step 11 → Frontend
+Backend:
+  Step 1  → Project setup (get pnpm dev working)
+  Step 2  → Database schema (Drizzle tables + migrations)
+  Step 3  → OOP models (Task, Board, Column classes) ← core OOP learning
+  Step 4  → Prototype pattern (clone) ← first pattern
+  Step 5  → Memento pattern (snapshots) ← second pattern
+  Step 6  → Iterator pattern (traversal) ← third pattern
+  Step 7  → Repositories (wire models to DB)
+  Step 8  → Services (wire patterns to repositories)
+  Step 9  → Routes & validation (expose via API)
+  Step 10 → Error handling
+
+Frontend:
+  Step 11 → Project setup (Vite + React + Tailwind)
+  Step 12 → Routing & layout
+  Step 13 → State management & data fetching ← core React learning
+  Step 14 → Board view (columns + tasks) ← main UI
+  Step 15 → Task detail modal
+  Step 16 → Clone (Prototype pattern UI)
+  Step 17 → Undo/Redo (Memento pattern UI)
+  Step 18 → Filter bar (Iterator pattern UI)
+  Step 19 → Polish & accessibility
 ```
 
-Steps 3-6 are where the OOP learning happens. Spend the most time there.
+Steps 3-6 are where the OOP learning happens. Steps 13-15 are where the React learning happens.
 
 ---
 
@@ -465,3 +793,9 @@ Steps 3-6 are where the OOP learning happens. Spend the most time there.
 | Drizzle ORM docs | https://orm.drizzle.team/ |
 | Express 5 docs | https://expressjs.com/ |
 | Zod validation | https://zod.dev/ |
+| React docs (start here) | https://react.dev/learn |
+| Thinking in React | https://react.dev/learn/thinking-in-react |
+| React hooks reference | https://react.dev/reference/react |
+| React Router docs | https://reactrouter.com/ |
+| Tailwind CSS docs | https://tailwindcss.com/docs |
+| Vite docs | https://vite.dev/guide/ |
