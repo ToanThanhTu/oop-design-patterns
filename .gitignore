@@ -8,6 +8,7 @@ node_modules/
 
 # Build output
 dist/
+dist-ssr/
 build/
 
 # TypeScript
@@ -23,9 +24,16 @@ build/
 .DS_Store
 Thumbs.db
 
+# React Router
+.react-router/
+
+# Vite
+*.local
+
 # Logs
 *.log
 npm-debug.log*
+pnpm-debug.log*
 
 # Testing
 coverage/
