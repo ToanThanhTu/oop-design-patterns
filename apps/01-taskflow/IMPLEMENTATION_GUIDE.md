@@ -415,21 +415,23 @@ Labels:
 
 ---
 
-### Step 11: Frontend Setup (React + Vite + TypeScript)
+### Step 11: Frontend Setup (React + Vite + React Router v7 Framework Mode)
 
-**Goal:** Scaffold a React project and establish the foundation.
+**Goal:** Scaffold a React project with React Router v7 in framework mode (SSR-enabled).
 
 **Tasks:**
-1. Run `pnpm create vite .` inside `frontend/` -- choose React + TypeScript + SWC
-2. Install Tailwind CSS v4 and configure it
-3. Install React Router for client-side routing
-4. Set up a project structure (see below)
-5. Create an API client module for all backend calls
-6. Run `pnpm dev` and verify the Vite dev server starts
+1. Scaffold with Vite + React + TypeScript
+2. Install and configure React Router v7 framework mode (`@react-router/dev`, `@react-router/node`)
+3. Install Tailwind CSS v4 and configure it
+4. Create `react-router.config.ts` with `ssr: true` and `appDirectory: 'src'`
+5. Create entry files: `entry.client.tsx` (hydration) and `entry.server.tsx` (streaming SSR)
+6. Create `root.tsx` with `Layout` (html/head/body) and `Root` (Outlet)
+7. Create an API client module for all backend calls
+8. Run `pnpm dev` and verify the dev server starts
 
-**Project Structure:**
+**Project Structure (Framework Mode):**
 ```
-frontend/
+taskflow-frontend/
   src/
     api/                  # API client functions (one file per resource)
       boardApi.ts
@@ -442,18 +444,31 @@ frontend/
       board/              # Board-specific components
       task/               # Task-specific components
     hooks/                # Custom React hooks
-    pages/                # Route-level page components
-      BoardListPage.tsx
+    pages/                # Route-level page components (with loaders/actions)
+      HomePage.tsx
       BoardPage.tsx
     types/                # Shared TypeScript types (mirrors backend DTOs)
-    App.tsx               # Router + layout
-    main.tsx              # Entry point
+    lib/                  # Utility functions (cn(), etc.)
+    entry.client.tsx      # Client hydration (hydrateRoot + HydratedRouter)
+    entry.server.tsx      # Server rendering (renderToPipeableStream + ServerRouter)
+    root.tsx              # Root layout (html, head, body, Outlet)
+    routes.ts             # Route config (route(), index() helpers)
+    index.css             # Tailwind + theme variables
+  react-router.config.ts  # Framework mode config (ssr, appDirectory)
+  vite.config.ts          # Vite + reactRouter() plugin + Tailwind
 ```
+
+**Hints -- Framework Mode vs Library Mode:**
+- **Framework mode** uses `reactRouter()` Vite plugin, `routes.ts` for config, typed loaders/actions, and SSR
+- **Library mode** uses `createBrowserRouter` + `RouterProvider` -- this is the older SPA approach
+- Framework mode gives you typed `Route.LoaderArgs` and `Route.ComponentProps` from auto-generated types (`.react-router/types/`)
+- No `App.tsx` or `main.tsx` -- entry points are `entry.client.tsx` and `entry.server.tsx`
 
 **Hints -- API Client:**
 - Create a base `fetch` wrapper that handles `Content-Type: application/json`, error parsing, and the base URL
 - Each API file exports functions like `getBoards()`, `createBoard(data)`, etc.
-- Keep API logic separate from components -- components call hooks, hooks call API functions
+- Loaders call API functions directly (they run on the server in SSR mode)
+- For client-side mutations (create, update, delete), use actions or call API from event handlers
 - Store the API base URL in an environment variable (`VITE_API_URL`)
 
 **Hints -- Tailwind CSS:**
@@ -464,76 +479,112 @@ frontend/
 **React Concepts to Review:**
 - **JSX** -- it's syntactic sugar for `React.createElement()`. Understand what JSX compiles to
 - **Components** -- functions that return JSX. Props flow down, events flow up
-- **Strict Mode** -- `<React.StrictMode>` in `main.tsx` intentionally double-renders in dev to catch bugs. Don't remove it
+- **Strict Mode** -- `<React.StrictMode>` in `entry.client.tsx` intentionally double-renders in dev to catch bugs. Don't remove it
 
 **Resources:**
-- Vite + React setup: https://vite.dev/guide/
+- React Router v7 Framework Mode: https://reactrouter.com/start/framework/installation
+- React Router Route Module API: https://reactrouter.com/start/framework/route-module
 - React Quick Start: https://react.dev/learn
 - Tailwind CSS v4 installation: https://tailwindcss.com/docs/installation/vite
-- React Router v7 docs: https://reactrouter.com/start/framework/installation
 
 ---
 
 ### Step 12: Routing & Layout
 
-**Goal:** Set up client-side routing and the app shell.
+**Goal:** Define routes in `routes.ts` and build the app shell in `root.tsx`.
 
 **Tasks:**
-1. Configure React Router with routes for board list and board detail
-2. Create a root layout component with a header/navbar
-3. Create placeholder page components (`BoardListPage`, `BoardPage`)
+1. Define routes in `routes.ts` using `route()` and `index()` helpers
+2. Create a root layout in `root.tsx` with a header/navbar inside `<Layout>`
+3. Create placeholder page components (`HomePage.tsx`, `BoardPage.tsx`) with typed exports
 4. Verify navigation works between pages
 
-**Routes:**
-```
-/                → BoardListPage (list all boards)
-/boards/:id      → BoardPage (Kanban board view)
+**Routes (in `routes.ts`):**
+```ts
+export default [
+  index('./pages/HomePage.tsx'),
+  route('boards/:id', './pages/BoardPage.tsx'),
+] satisfies RouteConfig
 ```
 
-**Hints -- React Router:**
-- Use `createBrowserRouter` + `RouterProvider` for the modern approach
-- Use `useParams()` to read `:id` from the URL
-- Use `useNavigate()` for programmatic navigation
-- Use `<Link>` instead of `<a>` for client-side navigation (no full page reload)
-- Use `<Outlet />` in layout components to render child routes
+**Hints -- React Router v7 Framework Mode:**
+- Routes are defined in `routes.ts`, NOT in JSX components. Each route points to a file that exports a route module
+- Each route module can export: `loader` (data fetching), `action` (mutations), `default` (component), `ErrorBoundary`, `meta`, `headers`
+- Route params are typed automatically via `.react-router/types/` -- use `Route.LoaderArgs` and `Route.ComponentProps`
+- Use `<Link to="/boards/123">` for client-side navigation (no full page reload)
+- Use `useNavigate()` for programmatic navigation after mutations
+- `<Outlet />` in `root.tsx` renders the matched child route
+
+**Hints -- Route Module Pattern:**
+```ts
+// pages/BoardPage.tsx
+import type { Route } from '.react-router/types/src/pages/+types/BoardPage'
+
+export async function loader({ params }: Route.LoaderArgs) {
+  // fetch data here -- runs on server (SSR) or client (navigation)
+  return { board: await getBoard(params.id) }
+}
+
+export default function BoardPage({ loaderData }: Route.ComponentProps) {
+  // loaderData is typed based on what loader returns
+  return <h1>{loaderData.board.name}</h1>
+}
+```
 
 **React Concepts to Review:**
 - **Conditional Rendering** -- `{condition && <Component />}` or ternary `{condition ? <A /> : <B />}`
 - **Lists & Keys** -- always provide a unique `key` prop when rendering lists with `.map()`. Keys help React identify which items changed
 
 **Resources:**
-- React Router tutorial: https://reactrouter.com/start/framework/routing
+- React Router Route Config: https://reactrouter.com/start/framework/routing
+- React Router Route Modules: https://reactrouter.com/start/framework/route-module
+- React Router Type Safety: https://reactrouter.com/explanation/type-safety
 - React Conditional Rendering: https://react.dev/learn/conditional-rendering
 - React Lists and Keys: https://react.dev/learn/rendering-lists
 
 ---
 
-### Step 13: State Management & Data Fetching
+### Step 13: Data Fetching & Mutations
 
-**Goal:** Fetch data from your backend API and manage it in React state.
+**Goal:** Fetch data using loaders and handle mutations with actions or client-side calls.
 
 **Tasks:**
-1. Fetch and display the list of boards on `BoardListPage`
-2. Fetch and display board details (columns + tasks) on `BoardPage`
-3. Handle loading, error, and empty states for all data fetching
-4. Create a board and navigate to it
+1. Create the API client layer (`api/` directory with fetch wrapper)
+2. Fetch and display the list of boards on `HomePage` using a `loader`
+3. Fetch and display board details (columns + tasks) on `BoardPage` using a `loader`
+4. Handle error states with `ErrorBoundary` exports on route modules
+5. Create a board using an `action` or client-side fetch, then navigate to it
 
-**Hints -- useState & useEffect:**
-- `useState` holds local component state. The setter triggers a re-render
-- `useEffect` runs side effects after render. Use it for data fetching (for now)
-- Always include a cleanup function in `useEffect` when setting up subscriptions
-- The dependency array controls when the effect re-runs: `[]` = once on mount, `[id]` = when `id` changes
+**Hints -- Loaders (Data Fetching):**
+- Loaders run **before** the component renders -- no loading spinners needed for initial data
+- In SSR mode, loaders run on the server on first load, then on the client for subsequent navigations
+- Loaders receive typed `params` and a `request` object
+- Return data directly -- it becomes `loaderData` in the component props
+- Loaders are the React Router replacement for `useEffect` data fetching
 
-**Hints -- Data Fetching Pattern:**
-```
-1. Set loading state → true
-2. Call API function
-3. On success → set data, set loading → false
-4. On error → set error state, set loading → false
-```
-- Extract this pattern into a custom hook (e.g., `useApi` or `useFetch`) to avoid repeating it
-- Show a loading spinner or skeleton while data is loading
-- Show an error message with a retry button on failure
+**Hints -- Actions (Mutations):**
+- Actions handle form submissions (`POST`, `PUT`, `DELETE` requests)
+- Use `<Form method="post">` to trigger an action (React Router intercepts the form submission)
+- After an action completes, React Router automatically revalidates loaders (data refreshes)
+- For more control, use `useFetcher()` -- it lets you call actions without navigation
+
+**Hints -- React 19 `<form action={fn}>` (NEW):**
+- React 19 lets you pass async functions directly to `<form action={fn}>` -- React manages the pending state
+- Combine with `useActionState()` to track form submission state (pending, error, result):
+  ```ts
+  const [state, submitAction, isPending] = useActionState(async (prev, formData) => {
+    const name = formData.get('name') as string
+    await createBoard({ name })
+    return { success: true }
+  }, null)
+  ```
+- `isPending` replaces manual `isSubmitting` state -- use it to disable buttons and show spinners
+- Works with both React Router actions and standalone form handlers
+
+**Hints -- When to use useState vs Loaders:**
+- **Loaders** for data that comes from the API (boards, tasks, columns) -- this is server state
+- **useState** for UI-only state (modal open/close, form input values, selected tab) -- this is client state
+- Don't store loader data in useState -- it's already managed by React Router via `loaderData`
 
 **Hints -- Lifting State:**
 - When sibling components need the same data, lift the state to their common parent
@@ -542,13 +593,18 @@ frontend/
 
 **React Concepts to Review:**
 - **useState** -- immutable updates. Never mutate state directly. For arrays: `setItems([...items, newItem])`, not `items.push(newItem)`
-- **useEffect** -- the mental model is synchronization, not lifecycle. "Keep this in sync with that"
+- **useActionState()** (React 19) -- replaces the `useState` + `isSubmitting` pattern for forms. Returns `[state, action, isPending]`. The action receives previous state + form data
+- **useEffect** -- the mental model is synchronization, not lifecycle. In framework mode, you'll rarely need it for data fetching (loaders handle that). Use it for side effects: timers, event listeners, DOM measurements
 - **Derived State** -- if a value can be computed from existing state/props, don't store it in `useState`. Just compute it during render
 - **Rendering** -- React re-renders when state changes. A re-render ≠ a DOM update. React diffs the virtual DOM and only updates what changed
 
 **Resources:**
+- React Router Loaders: https://reactrouter.com/start/framework/data-loading
+- React Router Actions: https://reactrouter.com/start/framework/actions
+- React Router useFetcher: https://reactrouter.com/api/hooks/useFetcher
+- React 19 useActionState: https://react.dev/reference/react/useActionState
+- React 19 `<form>` actions: https://react.dev/reference/react-dom/components/form
 - React useState: https://react.dev/reference/react/useState
-- React useEffect: https://react.dev/reference/react/useEffect
 - You Might Not Need an Effect: https://react.dev/learn/you-might-not-need-an-effect
 - Thinking in React: https://react.dev/learn/thinking-in-react
 
@@ -566,32 +622,38 @@ frontend/
 5. Add "Create Column" and "Create Task" functionality with forms
 
 **Hints -- Component Composition:**
-- `BoardPage` → fetches data, passes to children
+- `BoardPage` → receives `loaderData` (fetched by the loader), passes to children
 - `BoardColumn` → receives column + tasks as props, renders task cards
 - `TaskCard` → receives a single task as props, renders the card UI
 - Keep components small and focused. If a component does too many things, split it
 
-**Hints -- Forms:**
-- Use controlled components: input value comes from state, onChange updates state
-- For simple forms (create board, create column), inline state is fine
-- For complex forms (create/edit task with many fields), consider React Hook Form + Zod
-- Validate on submit, show inline error messages
+**Hints -- Forms (React 19):**
+- For simple forms (create column, create board), use `<form action={fn}>` with `useActionState()` -- React manages pending state automatically
+- For complex forms (create/edit task with many fields), consider React Hook Form + Zod for validation
+- `useActionState()` gives you `isPending` for free -- use it to disable submit buttons and show loading indicators
+- For forms that shouldn't navigate (e.g., inline "add column" form), use `useFetcher()` from React Router
 
 **Hints -- Prop Drilling vs Context:**
 - Passing props 2-3 levels deep is fine. Don't reach for Context too early
 - If you find yourself passing the same data through 4+ levels, consider Context or restructuring
 - Context is for "global-ish" data: current user, theme, locale -- not for every piece of state
+- React 19: `use(context)` can be called conditionally (unlike `useContext`), and works inside loops and `if` statements
 
 **React Concepts to Review:**
 - **Props** -- read-only data passed from parent to child. Think of them as function arguments
 - **Children** -- `props.children` lets you compose components like HTML elements
-- **Controlled vs Uncontrolled** -- controlled = React owns the value (via state), uncontrolled = DOM owns it (via ref). Prefer controlled for forms
+- **Controlled vs Uncontrolled** -- controlled = React owns the value (via state), uncontrolled = DOM owns it (via ref). For `<form action={fn}>` you can use uncontrolled inputs and read values from `FormData` -- simpler for basic forms
 - **Composition over Inheritance** -- React favors composition. Use props and children to customize behavior, not class hierarchies
+- **`ref` as a prop (React 19)** -- no more `forwardRef()` wrapper. Components receive `ref` directly as a prop. Simplifies custom input/button components
+- **React Compiler** -- you have this enabled. It auto-memoizes components, so you rarely need manual `React.memo()`, `useMemo`, or `useCallback`. Write natural code and let the compiler optimize
 
 **Resources:**
 - React Props: https://react.dev/learn/passing-props-to-a-component
-- React Forms: https://react.dev/reference/react-dom/components/input
+- React 19 `<form>` actions: https://react.dev/reference/react-dom/components/form
+- React 19 useActionState: https://react.dev/reference/react/useActionState
 - React Context: https://react.dev/learn/passing-data-deeply-with-context
+- React 19 use(): https://react.dev/reference/react/use
+- React Compiler: https://react.dev/learn/react-compiler
 - React Hook Form: https://react-hook-form.com/get-started
 - Zod + React Hook Form: https://react-hook-form.com/get-started#SchemaValidation
 
@@ -614,18 +676,37 @@ frontend/
 - Trap focus inside the modal for accessibility
 - Control open/close state in the parent component, not the modal itself
 
-**Hints -- Optimistic Updates:**
-- When the user toggles a subtask, update the UI immediately, then sync with the backend
-- If the API call fails, revert the optimistic update and show an error
-- This makes the UI feel instant instead of waiting for network round-trips
+**Hints -- Optimistic Updates with `useOptimistic()` (React 19 NEW):**
+- `useOptimistic()` is purpose-built for this. No manual rollback logic needed:
+  ```ts
+  const [optimisticSubtasks, toggleOptimistic] = useOptimistic(
+    subtasks,
+    (current, toggledId: string) =>
+      current.map(s => s.id === toggledId ? { ...s, isComplete: !s.isComplete } : s)
+  )
+  ```
+- Show the optimistic value (`optimisticSubtasks`) in the UI
+- Call `toggleOptimistic(subtaskId)` immediately, then fire the API call
+- If the API fails, React automatically reverts to the real state when the transition resolves
+- Use `useOptimistic` inside a `useTransition` or `<form action={fn}>` for automatic revert on error
+- Perfect for: toggling subtask complete, attaching/detaching labels, any quick toggle
+
+**Hints -- `useFetcher()` for Modal Mutations:**
+- Use `useFetcher()` for mutations inside the modal (update task, add subtask, etc.)
+- `fetcher.submit()` triggers the action without navigating away from the page
+- `fetcher.state` tells you if the mutation is `'idle'`, `'submitting'`, or `'loading'`
+- After fetcher completes, the parent route's loader automatically revalidates
 
 **React Concepts to Review:**
-- **useRef** -- for DOM references (focus management in modals), or mutable values that don't trigger re-renders
+- **useOptimistic()** (React 19) -- manages optimistic state that automatically reverts. First arg is the real data, second is the reducer that produces the optimistic version
+- **useRef** -- for DOM references (focus management in modals), or mutable values that don't trigger re-renders. React 19: `ref` is a regular prop, no `forwardRef` needed
 - **Portals** -- `createPortal(jsx, domNode)` renders children outside the parent DOM hierarchy while preserving React context
-- **Event Handling** -- `onClick`, `onSubmit`, `onKeyDown`. Always `e.preventDefault()` on form submit. Event handlers receive synthetic events
+- **Event Handling** -- `onClick`, `onSubmit`, `onKeyDown`. With `<form action={fn}>`, you often don't need `onSubmit` at all
 - **Callback Props** -- pass functions from parent to child: `<TaskCard onEdit={handleEdit} />`. The child calls it, the parent handles the logic
 
 **Resources:**
+- React 19 useOptimistic: https://react.dev/reference/react/useOptimistic
+- React 19 useTransition: https://react.dev/reference/react/useTransition
 - React createPortal: https://react.dev/reference/react-dom/createPortal
 - React useRef: https://react.dev/reference/react/useRef
 - React Event Handling: https://react.dev/learn/responding-to-events
@@ -639,23 +720,31 @@ frontend/
 
 **Tasks:**
 1. Add a "Clone" button on task cards (or in the task detail modal)
-2. On click, call `POST /tasks/:id/clone`
-3. Show the cloned task appear in the same column
+2. On click, call `POST /tasks/:id/clone` via `useFetcher()`
+3. Show the cloned task appear in the same column (loader revalidates automatically)
 4. Add a "Templates" section that lists template tasks (`isTemplate: true`)
 5. Allow cloning from templates into a target column
 
 **Hints:**
 - The backend does all the heavy lifting (deep copy of subtasks + labels). The frontend just calls one endpoint
-- After cloning, you need to refresh the task list or optimistically add the new task to the UI
-- Consider showing a brief success toast/notification after cloning
+- Use `useFetcher()` for the clone action -- it won't navigate away from the board view
+- After `fetcher.submit()` completes, React Router revalidates the board loader, so the cloned task appears automatically
+- Use `useOptimistic()` to immediately show a placeholder card while the clone is in progress
+- Show the fetcher's pending state: `fetcher.state === 'submitting'` → disable the clone button or show a spinner
+
+**Hints -- `useTransition()` (React 19):**
+- Wrap the clone action in `startTransition()` to keep the UI responsive during the API call
+- `isPending` from `useTransition` can drive a loading indicator on the clone button
+- Transitions tell React "this update can wait" -- the current UI stays interactive while the async work happens
 
 **React Concepts to Review:**
-- **Updating Arrays in State** -- to add a cloned task: `setTasks(prev => [...prev, clonedTask])`. Never mutate
-- **useMemo** -- if you're filtering template vs non-template tasks for display, `useMemo` avoids recomputing on every render. But only use it if you measure a benefit
+- **useTransition()** (React 19) -- marks state updates as non-urgent. The UI stays responsive while the transition is pending. `const [isPending, startTransition] = useTransition()`
+- **React Compiler** -- handles memoization automatically. If you're filtering templates vs non-templates from loaderData, just compute it inline during render. The compiler will memoize it if beneficial
 
 **Resources:**
+- React 19 useTransition: https://react.dev/reference/react/useTransition
+- React Router useFetcher: https://reactrouter.com/api/hooks/useFetcher
 - React Updating Arrays in State: https://react.dev/learn/updating-arrays-in-state
-- React useMemo: https://react.dev/reference/react/useMemo
 
 ---
 
@@ -665,23 +754,29 @@ frontend/
 
 **Tasks:**
 1. Add Undo and Redo buttons to the board header
-2. Add a "Save Snapshot" button with an optional description input
-3. On Undo → call `POST /boards/:id/undo`, refresh the board
-4. On Redo → call `POST /boards/:id/redo`, refresh the board
-5. Show snapshot history list (`GET /boards/:id/snapshots`)
+2. Add a "Save Snapshot" button with an optional description input using `useActionState()`
+3. On Undo → call `POST /boards/:id/undo` via `useFetcher()`, board revalidates automatically
+4. On Redo → call `POST /boards/:id/redo` via `useFetcher()`, board revalidates automatically
+5. Show snapshot history list (`GET /boards/:id/snapshots`) in the board loader
 6. Disable Undo/Redo buttons when there's nothing to undo/redo
 
 **Hints:**
-- After undo/redo, the entire board state changes (columns, tasks, subtasks, labels). Refetch everything
-- The disabled state of undo/redo buttons is tricky -- your backend doesn't expose "can undo?" directly. Options: track it client-side, or just handle the 400 error gracefully
+- Use `useFetcher()` for undo/redo -- it triggers the action without navigating, and auto-revalidates the board loader
+- `fetcher.state === 'submitting'` → show a loading indicator on the undo/redo button while the API call is in progress
+- The disabled state of undo/redo buttons is tricky -- your backend doesn't expose "can undo?" directly. Options: track snapshot count client-side, or handle the 400 error gracefully
 - Show a confirmation before undo -- "This will revert to the previous saved state"
+- Save snapshot form: use `<form action={fn}>` with `useActionState()` -- `isPending` disables the button automatically
 
 **React Concepts to Review:**
-- **useCallback** -- if you're passing undo/redo handlers to child components, `useCallback` prevents unnecessary re-renders of those children. Same rule as `useMemo`: only if needed
-- **Conditional Disabling** -- `<button disabled={!canUndo}>Undo</button>`. Disabled buttons should look visually different (lower opacity, no hover effects)
+- **React Compiler** -- you don't need `useCallback` for undo/redo handlers. The React Compiler auto-memoizes them. Just write plain functions
+- **Conditional Disabling** -- `<button disabled={!canUndo || isPending}>Undo</button>`. Disabled buttons should look visually different (lower opacity, no hover effects)
+- **`use()` hook (React 19)** -- if your snapshot history is loaded lazily (as a promise), you can resolve it with `use(snapshotsPromise)` inside a `<Suspense>` boundary. The component suspends until the promise resolves
 
 **Resources:**
-- React useCallback: https://react.dev/reference/react/useCallback
+- React 19 use(): https://react.dev/reference/react/use
+- React 19 useActionState: https://react.dev/reference/react/useActionState
+- React Router useFetcher: https://reactrouter.com/api/hooks/useFetcher
+- React Suspense: https://react.dev/reference/react/Suspense
 
 ---
 
@@ -691,25 +786,36 @@ frontend/
 
 **Tasks:**
 1. Create a `FilterBar` component with dropdowns/inputs for: priority, assignee, type, label, due date range
-2. On filter change, call `GET /boards/:id/tasks?priority=high&assignee=alice...`
-3. Display filtered results (replace the normal column view with a flat filtered list, or highlight matching tasks)
-4. Add a "Clear Filters" button to reset
-5. Show the active filter count as a badge
+2. Sync filters to URL search params so the board loader can use them
+3. The board loader reads search params and calls `GET /boards/:id/tasks?priority=high&assignee=alice...`
+4. Display filtered results (replace the normal column view with a flat filtered list, or highlight matching tasks)
+5. Add a "Clear Filters" button to reset
+6. Show the active filter count as a badge
 
-**Hints:**
-- Use query parameters for filters. When any filter changes, rebuild the query string and refetch
-- Debounce text inputs (assignee name) to avoid firing API calls on every keystroke
-- The filtered view could be a separate mode: "Board View" (columns) vs "Filter View" (flat list)
+**Hints -- URL-driven Filters with Loaders:**
+- Use `useSearchParams()` to read/write filter state to the URL
+- When filters change, update the URL → React Router re-runs the loader with the new search params
+- The loader reads `new URL(request.url).searchParams` and passes them to the API call
+- This makes filtered views shareable and bookmarkable -- the URL is the source of truth
+- No `useEffect` or manual refetching needed -- the loader/URL flow handles it
+
+**Hints -- Debouncing with `useTransition()` (React 19):**
+- Wrap filter changes in `startTransition()` to keep the UI responsive while the loader refetches
+- `isPending` from `useTransition` can show a subtle loading indicator on the results (e.g., reduced opacity)
+- For text inputs (assignee name), combine with a debounce: update local state immediately (responsive typing), but delay the URL update
+- The user sees their input immediately while the filtered results load in the background
 
 **React Concepts to Review:**
-- **Custom Hooks** -- extract the filter logic into `useTaskFilters()` that manages filter state and returns `{ filters, setFilter, clearFilters, filteredTasks }`
-- **Debouncing** -- delay API calls until the user stops typing. Implement with `setTimeout` in a `useEffect`, or use a `useDebouncedValue` hook
-- **URL State** -- consider syncing filters to the URL query string so filtered views are shareable/bookmarkable. Use `useSearchParams()` from React Router
+- **Custom Hooks** -- extract filter logic into `useTaskFilters()` that manages filter state, URL sync, and returns `{ filters, setFilter, clearFilters }`
+- **useTransition()** (React 19) -- wrapping `setSearchParams()` in `startTransition()` tells React the navigation can be deferred. The current view stays interactive while results load
+- **`use()` hook (React 19)** -- if filter results are loaded as a deferred promise (via `defer()` in the loader), resolve them with `use()` inside a `<Suspense>` boundary. The board layout renders immediately while filtered results stream in
 
 **Resources:**
 - React Custom Hooks: https://react.dev/learn/reusing-logic-with-custom-hooks
-- React Router useSearchParams: https://reactrouter.com/en/main/hooks/use-search-params
-- Debounce pattern: https://usehooks.com/usedebounce
+- React Router useSearchParams: https://reactrouter.com/api/hooks/useSearchParams
+- React 19 useTransition: https://react.dev/reference/react/useTransition
+- React 19 use(): https://react.dev/reference/react/use
+- React Suspense: https://react.dev/reference/react/Suspense
 
 ---
 
@@ -727,7 +833,8 @@ frontend/
 7. Responsive layout (works on mobile screens)
 
 **Hints -- Error Boundaries:**
-- Error boundaries are class components (the one place React still needs classes!)
+- In React Router framework mode, export an `ErrorBoundary` component from your route module -- it catches loader/action/render errors for that route
+- For non-route components, error boundaries are class components (the one place React still needs classes)
 - They catch errors during rendering, not in event handlers or async code
 - Wrap major sections independently so one crash doesn't take down the whole app
 
@@ -796,6 +903,11 @@ Steps 3-6 are where the OOP learning happens. Steps 13-15 are where the React le
 | React docs (start here) | https://react.dev/learn |
 | Thinking in React | https://react.dev/learn/thinking-in-react |
 | React hooks reference | https://react.dev/reference/react |
-| React Router docs | https://reactrouter.com/ |
+| React 19 blog post | https://react.dev/blog/2024/12/05/react-19 |
+| React 19 useActionState | https://react.dev/reference/react/useActionState |
+| React 19 useOptimistic | https://react.dev/reference/react/useOptimistic |
+| React 19 use() | https://react.dev/reference/react/use |
+| React Compiler | https://react.dev/learn/react-compiler |
+| React Router v7 docs | https://reactrouter.com/ |
 | Tailwind CSS docs | https://tailwindcss.com/docs |
 | Vite docs | https://vite.dev/guide/ |
