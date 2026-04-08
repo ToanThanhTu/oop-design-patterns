@@ -2,7 +2,7 @@ const baseApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 export async function request<T, K>(path: string, method: string, body?: T): Promise<K | void> {
   let response
-  
+
   if (body) {
     response = await fetch(`${baseApiUrl}${path}`, {
       method: method,
@@ -46,7 +46,12 @@ export async function put<T, K>(path: string, body: T) {
   return result
 }
 
-export async function del(path: string) {
-  const result = await request(path, 'DELETE')
+export async function patch<T, K>(path: string, body: T) {
+  const result = await request<T, K>(path, 'PATCH', body)
+  return result
+}
+
+export async function del(path: string): Promise<void> {
+  const result = await request<never, void>(path, 'DELETE')
   return result
 }
