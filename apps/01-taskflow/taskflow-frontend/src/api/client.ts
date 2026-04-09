@@ -1,3 +1,5 @@
+import { HttpError } from '@/lib/errors/httpError'
+
 const baseApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 export async function request<T, K>(path: string, method: string, body?: T): Promise<K | void> {
@@ -18,8 +20,8 @@ export async function request<T, K>(path: string, method: string, body?: T): Pro
   }
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.error?.message || 'Request failed')
+    const { code, message, details } = await response.json()
+    throw new HttpError(code, message, details)
   }
 
   if (response.status === 204) {
