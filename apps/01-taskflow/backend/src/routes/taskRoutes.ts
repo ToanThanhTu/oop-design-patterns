@@ -1,4 +1,5 @@
 import { subtaskService, taskLabelService, taskService } from '#bootstrap.js'
+import { CreateSubtaskSchema } from '#schemas/subtaskSchemas.js'
 import { AddTaskLabelSchema, RemoveTaskLabelSchema } from '#schemas/taskLabelSchemas.js'
 import { CreateTaskSchema, UpdateTaskSchema } from '#schemas/taskSchemas.js'
 import { NotFoundError } from '#utils/errors.js'
@@ -74,6 +75,21 @@ export const cloneTask = async (req: Request, res: Response) => {
 }
 
 // Subtasks
+
+export const createSubtask = async (req: Request, res: Response) => {
+  const taskId = z.uuid().parse(req.params.id)
+  const newSubtaskData = z.omit(CreateSubtaskSchema, { taskId: true }).parse(req.body)
+
+  const newSubtask = CreateSubtaskSchema.parse({ taskId, ...newSubtaskData })
+
+  const result = await subtaskService.create(newSubtask)
+
+  if (!result) {
+    throw new Error(`Failed to create Subtask for Task ${taskId}.`)
+  }
+
+  res.status(201).send(result)
+}
 
 export const getTaskSubtasks = async (req: Request, res: Response) => {
   const taskId = z.uuid().parse(req.params.id)

@@ -36,7 +36,7 @@ export async function get<K>(path: string) {
   return result
 }
 
-export async function post<T, K>(path: string, body: T) {
+export async function post<T, K>(path: string, body?: T) {
   const result = await request<T, K>(path, 'POST', body)
   return result
 }

@@ -15,10 +15,11 @@ import {
 } from '#routes/boardRoutes.js'
 import { createColumn, deleteColumn, getColumn, updateColumn } from '#routes/columnRoutes.js'
 import { createLabel, getLabels } from '#routes/labelRoutes.js'
-import { createSubtask, deleteSubtask, updateSubtask } from '#routes/subtaskRoutes.js'
+import { deleteSubtask, updateSubtask } from '#routes/subtaskRoutes.js'
 import {
   attachLabel,
   cloneTask,
+  createSubtask,
   createTask,
   deleteTask,
   detachLabel,

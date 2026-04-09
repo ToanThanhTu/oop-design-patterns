@@ -1,23 +1,8 @@
 import { subtaskService } from '#bootstrap.js'
-import { CreateSubtaskSchema, UpdateSubtaskSchema } from '#schemas/subtaskSchemas.js'
+import { UpdateSubtaskSchema } from '#schemas/subtaskSchemas.js'
 import { NotFoundError } from '#utils/errors.js'
 import { type Request, type Response } from 'express'
 import * as z from 'zod/mini'
-
-export const createSubtask = async (req: Request, res: Response) => {
-  const taskId = z.uuid().parse(req.params.id)
-  const newSubtaskData = z.omit(CreateSubtaskSchema, { taskId: true }).parse(req.body)
-
-  const newSubtask = CreateSubtaskSchema.parse({ taskId, ...newSubtaskData })
-
-  const result = await subtaskService.create(newSubtask)
-
-  if (!result) {
-    throw new Error(`Failed to create Subtask for Task ${taskId}.`)
-  }
-
-  res.status(201).send(result)
-}
 
 export const deleteSubtask = async (req: Request, res: Response) => {
   const subtaskId = z.uuid().parse(req.params.id)
