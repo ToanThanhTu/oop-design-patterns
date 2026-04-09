@@ -168,6 +168,10 @@ export class Task implements Cloneable<CreateTaskDto> {
     }
   }
 
+  toJSON() {
+    return this.toType()
+  }
+
   toType(): TaskType {
     return {
       assignee: this._assignee,

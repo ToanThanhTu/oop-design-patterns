@@ -45,6 +45,10 @@ export class Board {
     this._updatedAt = updatedAt
   }
 
+  toJSON() {
+    return this.toType()
+  }
+
   toType(): BoardType {
     return {
       createdAt: this._createdAt,

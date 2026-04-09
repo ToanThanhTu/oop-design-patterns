@@ -65,6 +65,10 @@ export class Column {
     this._position = position
   }
 
+  toJSON() {
+    return this.toType()
+  }
+
   toType(): ColumnType {
     return {
       boardId: this._boardId,

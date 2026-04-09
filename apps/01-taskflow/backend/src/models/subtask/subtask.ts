@@ -55,6 +55,10 @@ export class Subtask {
     this._title = title
   }
 
+  toJSON() {
+    return this.toType()
+  }
+
   toType(): SubtaskType {
     return {
       id: this._id,

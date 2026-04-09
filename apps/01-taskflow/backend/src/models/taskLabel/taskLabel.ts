@@ -22,6 +22,10 @@ export class TaskLabel {
     this._taskId = taskId
   }
 
+  toJSON() {
+    return this.toType()
+  }
+
   toType(): TaskLabelType {
     return {
       labelId: this._labelId,

@@ -35,6 +35,10 @@ export class Label {
     this._name = name
   }
 
+  toJSON() {
+    return this.toType()
+  }
+
   toType(): LabelType {
     return {
       color: this._color,

@@ -19,7 +19,8 @@
     "db:generate": "NODE_OPTIONS='--import tsx' drizzle-kit generate",
     "db:migrate": "NODE_OPTIONS='--import tsx' drizzle-kit migrate",
     "db:push": "NODE_OPTIONS='--import tsx' drizzle-kit push",
-    "db:studio": "NODE_OPTIONS='--import tsx' drizzle-kit studio"
+    "db:studio": "NODE_OPTIONS='--import tsx' drizzle-kit studio",
+    "db:seed": "tsx src/seed.ts"
   },
   "keywords": [],
   "author": "",
