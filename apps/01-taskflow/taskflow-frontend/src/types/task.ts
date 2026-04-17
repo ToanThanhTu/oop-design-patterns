@@ -22,7 +22,7 @@ export interface CreateTaskDto {
   description: null | string
   dueDate: null | string
   isTemplate: boolean
-  position: number
+  position?: number
   priority: Priority
   title: string
   type: TaskType

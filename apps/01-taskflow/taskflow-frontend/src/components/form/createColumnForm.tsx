@@ -31,6 +31,8 @@ export default function CreateColumnForm({ setShowCreateColumnModal }: CreateCol
       {errors?.formError && <div role="alert">{errors.formError}</div>}
       {errors?.fieldErrors?.name && <em>{errors.fieldErrors.name}</em>}
 
+      <input type="hidden" name="intent" value="create-column" />
+
       {isSubmitting ? (
         <Button disabled>Submitting...</Button>
       ) : (

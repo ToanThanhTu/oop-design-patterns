@@ -67,7 +67,14 @@ export class TaskService {
     return newTask
   }
 
-  create(task: CreateTaskDto): Promise<Task | undefined> {
+  async create(task: CreateTaskDto): Promise<Task | undefined> {
+    if (task.position === undefined) {
+      const length = await this.taskRepository
+        .findByColumnId(task.columnId)
+        .then((results) => results.length)
+      task.position = length
+    }
+
     return this.taskRepository.create(task)
   }
 

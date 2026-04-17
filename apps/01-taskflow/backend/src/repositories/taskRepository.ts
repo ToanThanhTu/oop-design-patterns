@@ -69,7 +69,7 @@ export class TaskRepository {
       description: task.description,
       dueDate: task.dueDate,
       isTemplate: task.isTemplate,
-      position: task.position,
+      position: task.position!,
       priority: task.priority,
       title: task.title,
       type: task.type,

@@ -1,6 +1,10 @@
+import CreateTaskForm from '@/components/form/createTaskForm'
+import Modal from '@/components/modal/modal'
 import TaskTile from '@/components/tasks/task'
+import { Button } from '@/components/ui/button'
 import type { Column } from '@/types/column'
 import type { Task } from '@/types/task'
+import { useState } from 'react'
 
 interface ColumnProps {
   column: Column
@@ -8,6 +12,8 @@ interface ColumnProps {
 }
 
 export default function ColumnView({ column, tasks }: ColumnProps) {
+  const [showCreateTaskForm, setShowCreateTaskForm] = useState(false)
+
   const sortedTasks = tasks.toSorted((a, b) => a.position - b.position)
 
   return (
@@ -23,7 +29,19 @@ export default function ColumnView({ column, tasks }: ColumnProps) {
         ) : (
           <p className="text-xs text-muted-foreground italic py-4 text-center">No tasks yet</p>
         )}
+
+        <Button onClick={() => setShowCreateTaskForm(true)}>Create Task</Button>
       </div>
+
+      {showCreateTaskForm && (
+        <Modal close={() => setShowCreateTaskForm(false)}>
+          <CreateTaskForm
+            columnId={column.id}
+            columnName={column.name}
+            setShowCreateTaskModal={setShowCreateTaskForm}
+          />
+        </Modal>
+      )}
     </div>
   )
 }

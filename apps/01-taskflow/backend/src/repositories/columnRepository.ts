@@ -87,7 +87,7 @@ export class ColumnRepository {
     return {
       boardId: column.boardId,
       name: column.name,
-      position: column.position,
+      position: column.position!,
     }
   }
 }
