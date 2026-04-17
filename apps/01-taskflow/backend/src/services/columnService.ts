@@ -12,7 +12,12 @@ export class ColumnService {
     this.columnRepository = columnRepository
   }
 
-  create(column: CreateColumnDto): Promise<Column | undefined> {
+  async create(column: CreateColumnDto): Promise<Column | undefined> {
+    if (column.position === undefined) {
+      const length = await this.columnRepository.findByBoardId(column.boardId).then((results) => results.length)
+      column.position = length
+    }
+
     return this.columnRepository.create(column)
   }
 

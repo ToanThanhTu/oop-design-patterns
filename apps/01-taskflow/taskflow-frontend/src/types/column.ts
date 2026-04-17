@@ -6,11 +6,3 @@ export interface Column {
   position: number
   updatedAt: string
 }
-
-export interface CreateColumnDto {
-  boardId: string
-  name: string
-  position: number
-}
-
-export type UpdateColumnDto = Partial<CreateColumnDto>

@@ -1,75 +1,116 @@
-# React + TypeScript + Vite
+# TaskFlow Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 Kanban UI for the TaskFlow backend. Uses React Router v7 in framework mode with SSR, Tailwind v4, and shadcn/ui components.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Tool | Purpose |
+|------|---------|
+| React 19 | UI (with React Compiler enabled) |
+| Vite 8 | Dev server + build |
+| React Router v7 | Routing + data loading + actions (framework mode, SSR) |
+| Tailwind CSS v4 | Styling (CSS-first config, no `tailwind.config.js`) |
+| shadcn/ui + Radix | Accessible component primitives |
+| Zod v4 | Client-side form validation |
+| Oxanium | Display font (variable) |
 
-## React Compiler
+## Structure
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── api/                      # Fetch wrappers + resource functions
+│   ├── client.ts             # Base get/post/put/patch/del with typed generics
+│   ├── endpoints.ts          # Centralized URL constants
+│   ├── boardApi.ts           # Board CRUD + snapshots + tasks + columns
+│   ├── taskApi.ts            # Task CRUD + clone + subtasks + labels
+│   ├── columnApi.ts          # Column CRUD
+│   ├── subtaskApi.ts         # Subtask CRUD
+│   └── labelApi.ts           # Label list + create
+├── components/
+│   ├── boards/               # BoardList, BoardView
+│   ├── columns/              # ColumnView
+│   ├── tasks/                # TaskTile
+│   ├── form/                 # CreateBoardForm, CreateColumnForm
+│   ├── modal/                # Modal (backdrop + click-outside-to-close)
+│   └── ui/                   # shadcn primitives (Button, etc.)
+├── lib/
+│   ├── errors/               # ActionError + ActionResult + normalizers
+│   └── utils.ts              # cn() helper (clsx + tailwind-merge)
+├── pages/                    # Route modules (loader + action + component)
+├── schemas/                  # Frontend Zod schemas (form input only)
+├── types/                    # Plain-object types mirroring backend DTOs
+├── entry.client.tsx          # Hydration (hydrateRoot + HydratedRouter)
+├── entry.server.tsx          # Streaming SSR (renderToPipeableStream)
+├── root.tsx                  # Layout + shared ErrorBoundary
+├── routes.ts                 # Route config (routes() / index() helpers)
+└── index.css                 # Tailwind + shadcn theme tokens
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Key Patterns
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Data Fetching via Loaders
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Loaders run before components render. In SSR mode they run on the server for the initial request, then on the client for subsequent navigations.
+
+```ts
+export async function loader({ params }: Route.LoaderArgs) {
+  const [board, columns, tasks] = await Promise.all([
+    getBoard(params.id),
+    getBoardColumns(params.id),
+    getBoardTasks(params.id, {}),
+  ])
+  if (!board) throw data('Board Not Found', { status: 404 })
+  return { board, columns, tasks }
+}
 ```
+
+### Mutations via `useFetcher` + actions
+
+Forms submit to the current route's `action` export without navigating. After the action completes, React Router revalidates the loader automatically.
+
+```ts
+const fetcher = useFetcher<ActionResult<Column>>()
+// submits to BoardPage's action; loader re-runs; UI updates
+<fetcher.Form method="post">{/* ... */}</fetcher.Form>
+```
+
+### Typed `ActionResult<T>`
+
+Discriminated union for action return values. Narrows cleanly based on `ok`:
+
+```ts
+type ActionResult<T> = { ok: true; data?: T } | { ok: false; error: ActionError }
+```
+
+`ActionError` carries optional `formError` (form-level message) and `fieldErrors` (per-field messages). Zod issues are normalized via `zodErrorToActionError`; unknown errors via `toActionError`.
+
+### Error Boundary
+
+Exported from `root.tsx`. Catches route errors:
+- `isRouteErrorResponse(error)` → formatted HTTP error
+- `error instanceof Error` → stack trace (dev)
+- Unknown → fallback
+
+### Frontend Schemas ≠ Backend Schemas
+
+Frontend Zod schemas validate **user input only** (e.g., `{ name }` for create-column). The backend validates the full API contract again. Actions enrich input with URL params (e.g., `boardId`) before calling the API.
+
+## Commands
+
+```bash
+pnpm dev      # Dev server on :5173
+pnpm build    # tsc + vite build
+pnpm preview  # Preview production build
+pnpm lint     # ESLint
+```
+
+## Config Files
+
+- `react-router.config.ts` -- `ssr: true`, `appDirectory: 'src'`, prerender `/`
+- `vite.config.ts` -- React Router plugin + React Compiler (via Babel) + Tailwind
+- `tsconfig.app.json` -- includes `.react-router/types/**/*` for typed route modules
+- `.react-router/types/` -- auto-generated by dev server (types for loaders/params)
+
+## Backend Dependency
+
+The frontend calls `http://localhost:3001` by default. Override via `VITE_API_URL` env var. Ensure the backend is running (`cd ../backend && pnpm dev`) before starting the frontend.

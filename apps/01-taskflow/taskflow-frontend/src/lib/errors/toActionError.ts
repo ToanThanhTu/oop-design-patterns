@@ -12,5 +12,5 @@ export function toActionError(error: unknown): ActionError {
     return { formError: error.message }
   }
 
-  return { formError: 'An unexpected error occured' }
+  return { formError: 'An unexpected error occurred' }
 }

@@ -194,7 +194,7 @@ Every concept is covered at least once. `✓` = primary coverage in that app.
 oop-design-patterns/
 ├── apps/
 │   ├── 01-taskflow/          # Prototype, Memento, Iterator
-│   │   ├── frontend/         # React + Vite
+│   │   ├── taskflow-frontend/ # React 19 + Vite + React Router v7 (framework mode)
 │   │   └── backend/          # Express + SQLite
 │   ├── 02-logstream/         # Chain of Responsibility, Singleton, Observer
 │   │   ├── frontend/         # React + Vite

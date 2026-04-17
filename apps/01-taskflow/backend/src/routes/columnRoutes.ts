@@ -18,9 +18,8 @@ export const getColumn = async (req: Request, res: Response) => {
 
 export const createColumn = async (req: Request, res: Response) => {
   const boardId = z.uuid().parse(req.params.id)
-  const newColumnData = z.omit(CreateColumnSchema, { boardId: true }).parse(req.body)
 
-  const newColumn = CreateColumnSchema.parse({ boardId, ...newColumnData })
+  const newColumn = CreateColumnSchema.parse({ boardId, ...req.body })
 
   const result = await columnService.create(newColumn)
 

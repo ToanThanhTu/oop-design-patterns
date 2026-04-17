@@ -10,14 +10,6 @@ export interface Board {
   updatedAt: string
 }
 
-export interface CreateBoardDto {
-  name: string
-}
-
-export interface UpdateBoardDto {
-  name: string
-}
-
 export interface BoardState {
   board: Board
   columns: Column[]

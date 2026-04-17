@@ -1,5 +1,9 @@
 import { getBoard, getBoardColumns, getBoardTasks } from '@/api/boardApi'
+import { createColumn } from '@/api/columnApi'
 import BoardView from '@/components/boards/board'
+import { toActionError } from '@/lib/errors/toActionError'
+import { zodErrorToActionError } from '@/lib/errors/zodErrorToActionError'
+import { CreateColumnSchema } from '@/schemas/columnSchemas'
 import { data } from 'react-router'
 import type { Route } from './+types/BoardPage'
 
@@ -31,8 +35,37 @@ export default function BoardPage({ loaderData }: Route.ComponentProps) {
   const { board, columns, tasks } = loaderData
 
   return (
-    <main className="border border-black p-12">
+    <main className="py-10">
       <BoardView board={board} columns={columns} tasks={tasks} />
     </main>
   )
+}
+
+export async function action({ request, params }: Route.ActionArgs) {
+  const boardId = params.id
+  const formData = await request.formData()
+  const parseResult = CreateColumnSchema.safeParse(Object.fromEntries(formData))
+
+  if (!parseResult.success) {
+    return data(
+      {
+        ok: false,
+        error: zodErrorToActionError(parseResult.error),
+      },
+      { status: 400 },
+    )
+  }
+
+  try {
+    const createdColumn = await createColumn(boardId, parseResult.data)
+    return data({ ok: true, data: createdColumn })
+  } catch (error: unknown) {
+    return data(
+      {
+        ok: false,
+        error: toActionError(error),
+      },
+      { status: 500 },
+    )
+  }
 }

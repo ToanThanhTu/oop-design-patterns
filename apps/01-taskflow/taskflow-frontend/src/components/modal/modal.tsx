@@ -9,12 +9,22 @@ interface ModalProps {
 
 export default function Modal({ close, className, children }: PropsWithChildren<ModalProps>) {
   return (
-    <div className={cn('fixed top-1/3 left-1/2 shadow-md p-12', className)}>
-      <Button className="absolute top-4 right-4" onClick={() => close(false)} variant="ghost">
-        X
-      </Button>
+    <div
+      className="fixed inset-0 bg-blue-900/40 flex items-center justify-center z-50"
+      onClick={() => close(false)}
+    >
+      <div
+        className={cn('bg-white rounded-lg shadow-lg p-12 z-50 relative', className)}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+      >
+        <Button className="absolute top-4 right-4" onClick={() => close(false)} variant="ghost">
+          X
+        </Button>
 
-      {children}
+        {children}
+      </div>
     </div>
   )
 }
