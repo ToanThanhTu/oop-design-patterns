@@ -1,10 +1,12 @@
 import CreateTaskForm from '@/components/form/createTaskForm'
 import Modal from '@/components/modal/modal'
-import TaskTile from '@/components/tasks/task'
+import { TaskDetails } from '@/components/tasks/taskDetails'
+import TaskTile from '@/components/tasks/taskTile'
 import { Button } from '@/components/ui/button'
 import type { Column } from '@/types/column'
 import type { Task } from '@/types/task'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 
 interface ColumnProps {
   column: Column
@@ -13,8 +15,13 @@ interface ColumnProps {
 
 export default function ColumnView({ column, tasks }: ColumnProps) {
   const [showCreateTaskForm, setShowCreateTaskForm] = useState(false)
+  const [seachParams, setSearchParams] = useSearchParams()
 
   const sortedTasks = tasks.toSorted((a, b) => a.position - b.position)
+
+  // Open task details modal if task param exists
+  const taskId = seachParams.get('task')
+  const taskToOpen = tasks.find((task) => task.id === taskId)
 
   return (
     <div className="flex flex-col gap-3 bg-muted rounded-lg p-4 min-w-75">
@@ -40,6 +47,19 @@ export default function ColumnView({ column, tasks }: ColumnProps) {
             columnName={column.name}
             setShowCreateTaskModal={setShowCreateTaskForm}
           />
+        </Modal>
+      )}
+
+      {taskToOpen && (
+        <Modal
+          close={() =>
+            setSearchParams((prev) => {
+              prev.delete('task')
+              return prev
+            })
+          }
+        >
+          <TaskDetails task={taskToOpen} />
         </Modal>
       )}
     </div>
