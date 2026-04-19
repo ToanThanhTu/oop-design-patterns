@@ -1,3 +1,4 @@
+import { checkbox, optionalDate, optionalString } from '@/lib/formHelpers'
 import * as z from 'zod/mini'
 
 export const PrioritySchema = z.enum(['low', 'medium', 'high'])
@@ -7,11 +8,11 @@ export type PriorityType = z.infer<typeof PrioritySchema>
 export type TaskTypeType = z.infer<typeof TaskTypeSchema>
 
 export const CreateTaskSchema = z.object({
-  assignee: z.nullable(z.string()),
+  assignee: optionalString,
   columnId: z.uuid(),
-  description: z.nullable(z.string()),
-  dueDate: z.nullable(z.iso.datetime()),
-  isTemplate: z.boolean(),
+  description: optionalString,
+  dueDate: optionalDate,
+  isTemplate: checkbox,
   position: z.optional(z.number().check(z.nonnegative())),
   priority: PrioritySchema,
   title: z.string().check(z.minLength(1)),

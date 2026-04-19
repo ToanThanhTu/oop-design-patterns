@@ -10,7 +10,7 @@ export const CreateTaskSchema = z.object({
   assignee: z.nullable(z.string()),
   columnId: z.uuid(),
   description: z.nullable(z.string()),
-  dueDate: z.nullable(z.iso.datetime()),
+  dueDate: z.nullable(z.iso.date()),
   isTemplate: z.boolean(),
   position: z.optional(z.number().check(z.nonnegative())),
   priority: PrioritySchema,

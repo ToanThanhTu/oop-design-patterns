@@ -1,4 +1,6 @@
+import RequiredIndicator from '@/components/form/requiredIndicator'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -10,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import type { ActionResult } from '@/lib/errors/types'
 import type { Task } from '@/types/task'
 import { useEffect } from 'react'
@@ -30,7 +33,6 @@ export default function CreateTaskForm({
   const result = fetcher.data
 
   const errors = result && !result.ok ? result.error : undefined
-
   const isSubmitting = fetcher.state !== 'idle'
 
   useEffect(() => {
@@ -41,54 +43,100 @@ export default function CreateTaskForm({
 
   return (
     <fetcher.Form method="post" className="flex flex-col gap-4">
-      <h2>Create a New {columnName} Task</h2>
+      <h2 className="text-lg font-semibold">Create a New {columnName} Task</h2>
 
-      {errors?.formError && <div role="alert">{errors.formError}</div>}
+      {errors?.formError && (
+        <div role="alert" className="text-destructive text-sm">
+          {errors.formError}
+        </div>
+      )}
 
       <Field>
-        <FieldLabel htmlFor="title">Title</FieldLabel>
+        <FieldLabel htmlFor="title">
+          Title <RequiredIndicator />
+        </FieldLabel>
         <Input id="title" name="title" placeholder="Enter task title" />
-
         {errors?.fieldErrors?.title && <FieldError>{errors.fieldErrors.title}</FieldError>}
       </Field>
 
-      <Field>
-        <FieldLabel htmlFor="type">Type</FieldLabel>
-        <Select name="type">
-          <SelectTrigger id="type">
-            <SelectValue placeholder="Select a task type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="bug">Bug</SelectItem>
-              <SelectItem value="feature">Feature</SelectItem>
-              <SelectItem value="story">Story</SelectItem>
-              <SelectItem value="task">Task</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+      <div className="grid grid-cols-2 gap-4">
+        <Field>
+          <FieldLabel htmlFor="type">
+            Type <RequiredIndicator />
+          </FieldLabel>
+          <Select name="type">
+            <SelectTrigger id="type">
+              <SelectValue placeholder="Select a task type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="bug">Bug</SelectItem>
+                <SelectItem value="feature">Feature</SelectItem>
+                <SelectItem value="story">Story</SelectItem>
+                <SelectItem value="task">Task</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          {errors?.fieldErrors?.type && <FieldError>{errors.fieldErrors.type}</FieldError>}
+        </Field>
 
-        {errors?.fieldErrors?.type && <FieldError>{errors.fieldErrors.type}</FieldError>}
+        <Field>
+          <FieldLabel>
+            Priority <RequiredIndicator />
+          </FieldLabel>
+          <RadioGroup defaultValue="medium" name="priority" className="flex gap-4">
+            <Field orientation="horizontal">
+              <RadioGroupItem value="high" id="high-priority" />
+              <FieldLabel htmlFor="high-priority">High</FieldLabel>
+            </Field>
+            <Field orientation="horizontal">
+              <RadioGroupItem value="medium" id="medium-priority" />
+              <FieldLabel htmlFor="medium-priority">Medium</FieldLabel>
+            </Field>
+            <Field orientation="horizontal">
+              <RadioGroupItem value="low" id="low-priority" />
+              <FieldLabel htmlFor="low-priority">Low</FieldLabel>
+            </Field>
+          </RadioGroup>
+          {errors?.fieldErrors?.priority && (
+            <FieldError>{errors.fieldErrors.priority}</FieldError>
+          )}
+        </Field>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Field>
+          <FieldLabel htmlFor="assignee">Assignee</FieldLabel>
+          <Input id="assignee" name="assignee" placeholder="Enter assignee name" />
+          {errors?.fieldErrors?.assignee && (
+            <FieldError>{errors.fieldErrors.assignee}</FieldError>
+          )}
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="dueDate">Due Date</FieldLabel>
+          <Input id="dueDate" name="dueDate" type="date" />
+          {errors?.fieldErrors?.dueDate && <FieldError>{errors.fieldErrors.dueDate}</FieldError>}
+        </Field>
+      </div>
+
+      <Field>
+        <FieldLabel htmlFor="description">Description</FieldLabel>
+        <Textarea
+          id="description"
+          name="description"
+          rows={3}
+          placeholder="Describe the task..."
+        />
+        {errors?.fieldErrors?.description && (
+          <FieldError>{errors.fieldErrors.description}</FieldError>
+        )}
       </Field>
 
-      <RadioGroup defaultValue="medium" name="priority">
-        <Field orientation="horizontal">
-          <RadioGroupItem value="high" id="high-priority" />
-          <FieldLabel htmlFor="high-priority">High</FieldLabel>
-        </Field>
-
-        <Field orientation="horizontal">
-          <RadioGroupItem value="medium" id="medium-priority" />
-          <FieldLabel htmlFor="medium-priority">Medium</FieldLabel>
-        </Field>
-
-        <Field orientation="horizontal">
-          <RadioGroupItem value="low" id="low-priority" />
-          <FieldLabel htmlFor="low-priority">Low</FieldLabel>
-        </Field>
-
-        {errors?.fieldErrors?.priority && <FieldError>{errors.fieldErrors.priority}</FieldError>}
-      </RadioGroup>
+      <Field orientation="horizontal">
+        <Checkbox id="isTemplate" name="isTemplate" />
+        <FieldLabel htmlFor="isTemplate">Save as template</FieldLabel>
+      </Field>
 
       <input type="hidden" name="columnId" value={columnId} />
       <input type="hidden" name="intent" value="create-task" />

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import type { Board } from '@/types/board'
 import type { Column } from '@/types/column'
 import type { Task } from '@/types/task'
+import { PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 
 interface BoardDetailProps {
@@ -28,16 +29,18 @@ export default function BoardView({ board, columns, tasks }: BoardDetailProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="mx-auto w-full max-w-6xl flex flex-col gap-1 px-6">
-        <h1 className="text-3xl font-bold tracking-tight">{board.name}</h1>
-        <p className="text-sm text-muted-foreground">
-          Created {formatDate(board.createdAt)} · Updated {formatDate(board.updatedAt)}
-        </p>
+      <header className="mx-auto w-full max-w-6xl flex flex-col gap-3 px-6 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight">{board.name}</h1>
+          <p className="text-sm text-muted-foreground">
+            Created {formatDate(board.createdAt)} · Updated {formatDate(board.updatedAt)}
+          </p>
+        </div>
+        <Button onClick={() => setShowCreateColumnModal(true)} className="sm:self-center">
+          <PlusIcon className="size-4" />
+          Create Column
+        </Button>
       </header>
-
-      <div>
-        <Button onClick={() => setShowCreateColumnModal(true)}>Create Column</Button>
-      </div>
 
       {showCreateColumnModal && (
         <Modal close={setShowCreateColumnModal}>
