@@ -1,4 +1,4 @@
-import { subtaskService, taskLabelService, taskService } from '#bootstrap.js'
+import { labelService, subtaskService, taskLabelService, taskService } from '#bootstrap.js'
 import { CreateSubtaskSchema } from '#schemas/subtaskSchemas.js'
 import { AddTaskLabelSchema, RemoveTaskLabelSchema } from '#schemas/taskLabelSchemas.js'
 import { CreateTaskSchema, UpdateTaskSchema } from '#schemas/taskSchemas.js'
@@ -100,6 +100,14 @@ export const getTaskSubtasks = async (req: Request, res: Response) => {
 }
 
 // Labels
+
+export const getTaskLabels = async (req: Request, res: Response) => {
+  const taskId = z.uuid().parse(req.params.id)
+
+  const labels = await labelService.getByTaskId(taskId)
+
+  res.send(labels)
+}
 
 export const attachLabel = async (req: Request, res: Response) => {
   const taskId = z.uuid().parse(req.params.taskId)

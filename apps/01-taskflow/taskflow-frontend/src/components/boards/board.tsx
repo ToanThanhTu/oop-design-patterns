@@ -1,12 +1,14 @@
 import ColumnView from '@/components/columns/column'
 import CreateColumnForm from '@/components/form/createColumnForm'
 import Modal from '@/components/modal/modal'
+import { TaskDetails } from '@/components/tasks/taskDetails'
 import { Button } from '@/components/ui/button'
 import type { Board } from '@/types/board'
 import type { Column } from '@/types/column'
 import type { Task } from '@/types/task'
 import { PlusIcon } from 'lucide-react'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 
 interface BoardDetailProps {
   board: Board
@@ -24,8 +26,13 @@ function formatDate(iso: string) {
 
 export default function BoardView({ board, columns, tasks }: BoardDetailProps) {
   const [showCreateColumnModal, setShowCreateColumnModal] = useState(false)
+  const [seachParams, setSearchParams] = useSearchParams()
 
   const sortedColumns = columns.toSorted((a, b) => a.position - b.position)
+
+  // Open task details modal if task param exists
+  const taskId = seachParams.get('task')
+  const taskToOpen = tasks.find((task) => task.id === taskId)
 
   return (
     <div className="flex flex-col gap-6">
@@ -54,6 +61,19 @@ export default function BoardView({ board, columns, tasks }: BoardDetailProps) {
           return <ColumnView key={column.id} column={column} tasks={columnTasks} />
         })}
       </div>
+
+      {taskToOpen && (
+        <Modal
+          close={() =>
+            setSearchParams((prev) => {
+              prev.delete('task')
+              return prev
+            })
+          }
+        >
+          <TaskDetails task={taskToOpen} />
+        </Modal>
+      )}
     </div>
   )
 }

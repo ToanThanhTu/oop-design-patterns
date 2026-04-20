@@ -24,6 +24,7 @@ import {
   deleteTask,
   detachLabel,
   getTask,
+  getTaskLabels,
   getTaskSubtasks,
   updateTask,
 } from '#routes/taskRoutes.js'
@@ -83,6 +84,7 @@ app.get(`${TASK_ROUTE}/:id/subtasks`, getTaskSubtasks)
 app.post(`${TASK_ROUTE}/:id/subtasks`, createSubtask)
 
 // Task Labels
+app.get(`${TASK_ROUTE}/:id/labels`, getTaskLabels)
 app.post(`${TASK_ROUTE}/:id/labels`, attachLabel)
 app.delete(`${TASK_ROUTE}/:taskId/labels/:labelId`, detachLabel)
 

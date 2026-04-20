@@ -16,4 +16,12 @@ export class LabelService {
   async getAll(): Promise<Label[]> {
     return await this.labelRepository.findAll()
   }
+
+  async getByTaskId(taskId: string): Promise<Label[]> {
+    return await this.labelRepository.findByTaskId(taskId)
+  }
+
+  async getOne(id: string): Promise<Label | undefined> {
+    return await this.labelRepository.findById(id)
+  }
 }

@@ -1,4 +1,5 @@
 import { del, get, post, put } from '@/api/client'
+import type { Label } from '@/types/label'
 import type { CreateSubtaskDto, Subtask } from '@/types/subtask'
 import type { CreateTaskDto, Task, UpdateTaskDto } from '@/types/task'
 import type { TaskLabel } from '@/types/taskLabel'
@@ -31,6 +32,10 @@ export async function getTaskSubtasks(id: string) {
 
 export async function createTaskSubtask(id: string, body: Omit<CreateSubtaskDto, 'taskId'>) {
   return post<Omit<CreateSubtaskDto, 'taskId'>, Subtask>(`${tasksApiUrl}/${id}/subtasks`, body)
+}
+
+export async function getTaskLabels(id: string) {
+  return get<Label[]>(`${tasksApiUrl}/${id}/labels`)
 }
 
 export async function attachLabel(taskId: string, labelId: string) {

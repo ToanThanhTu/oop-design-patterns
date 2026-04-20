@@ -28,15 +28,19 @@ src/
 │   └── labelApi.ts           # Label list + create
 ├── components/
 │   ├── boards/               # BoardList, BoardView
-│   ├── columns/              # ColumnView
-│   ├── tasks/                # TaskTile
-│   ├── form/                 # CreateBoardForm, CreateColumnForm
+│   ├── columns/              # ColumnView (task details modal hosted here via ?task= search param)
+│   ├── tasks/                # TaskTile, TaskDetails
+│   ├── form/                 # CreateBoardForm, CreateColumnForm, CreateTaskForm, RequiredIndicator
 │   ├── modal/                # Modal (backdrop + click-outside-to-close)
-│   └── ui/                   # shadcn primitives (Button, etc.)
+│   └── ui/                   # shadcn primitives (Button, Checkbox, Input, Select, etc.)
 ├── lib/
 │   ├── errors/               # ActionError + ActionResult + normalizers
+│   ├── formHelpers.ts        # Zod helpers: optionalString, optionalDate, checkbox
 │   └── utils.ts              # cn() helper (clsx + tailwind-merge)
 ├── pages/                    # Route modules (loader + action + component)
+├── routes/                   # Resource routes (loader-only, no component)
+│   ├── api.tasks.$id.subtasks.tsx
+│   └── api.tasks.$id.labels.tsx
 ├── schemas/                  # Frontend Zod schemas (form input only)
 ├── types/                    # Plain-object types mirroring backend DTOs
 ├── entry.client.tsx          # Hydration (hydrateRoot + HydratedRouter)
@@ -94,6 +98,40 @@ Exported from `root.tsx`. Catches route errors:
 ### Frontend Schemas ≠ Backend Schemas
 
 Frontend Zod schemas validate **user input only** (e.g., `{ name }` for create-column). The backend validates the full API contract again. Actions enrich input with URL params (e.g., `boardId`) before calling the API.
+
+### Form Helpers (`lib/formHelpers.ts`)
+
+HTML forms send `""` for empty inputs and omit unchecked checkboxes, which mismatches backend DTO types. The helpers use `z.pipe(z.transform(...), z.nullable/boolean(...))` to normalize:
+
+- `optionalString` — `""` → `null`, else `string`
+- `optionalDate` — `""` → `null`, else ISO date string
+- `checkbox` — `"on" | true` → `true`, else `false`
+
+Used in `CreateTaskSchema` for optional `assignee` / `description` / `dueDate` fields and the `isTemplate` checkbox.
+
+### Resource Routes (subtasks + labels)
+
+Routes that export only a `loader` (no default component). Used for on-demand data loads from client components via `useFetcher().load()`:
+
+- `/api/tasks/:id/subtasks` → `routes/api.tasks.$id.subtasks.tsx`
+- `/api/tasks/:id/labels` → `routes/api.tasks.$id.labels.tsx`
+
+Registered explicitly in `routes.ts`. The `TaskDetails` modal calls them on mount via `useEffect` + `fetcher.load()`.
+
+### Optimistic Updates (`useOptimistic` + `useTransition`)
+
+Subtask toggle uses React 19's `useOptimistic` inside a `startTransition`. The flow:
+
+1. `addOptimistic(id)` → UI updates instantly (reducer toggles `isComplete`)
+2. `await updateSubtask(id, { isComplete })` → PATCH to backend
+3. `fetcher.load(...)` → re-fetch the canonical subtasks list
+4. Transition ends → optimistic state discards, real state takes over
+
+If the API throws, the transition ends without the real state updating → optimistic state auto-reverts.
+
+### URL-driven Modals
+
+The task detail modal opens via `?task=<id>` search param, not component state. `ColumnView` reads `useSearchParams()` and renders the modal when the param matches a task in its column. This makes task URLs deep-linkable and shareable — refreshing the page keeps the modal open.
 
 ## Commands
 

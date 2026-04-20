@@ -56,12 +56,14 @@ A Kanban-style task board where users create, organize, and track tasks across c
 │   └── drizzle/             # Migration files
 ├── taskflow-frontend/
 │   ├── src/
-│   │   ├── api/             # client.ts + one file per resource
+│   │   ├── api/             # client.ts + endpoints.ts + one file per resource
 │   │   ├── components/      # boards/, columns/, tasks/, form/, modal/, ui/
 │   │   ├── lib/
 │   │   │   ├── errors/      # ActionResult + error normalizers
+│   │   │   ├── formHelpers.ts  # Zod transformers for HTML form quirks
 │   │   │   └── utils.ts     # cn() helper
 │   │   ├── pages/           # HomePage.tsx, BoardPage.tsx (loaders + actions)
+│   │   ├── routes/          # Resource routes (loader-only: /api/tasks/:id/subtasks|labels)
 │   │   ├── schemas/         # Frontend Zod schemas (user input only)
 │   │   ├── types/           # Plain-object types mirroring backend
 │   │   ├── entry.client.tsx # Hydration

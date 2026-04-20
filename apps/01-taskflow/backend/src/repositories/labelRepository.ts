@@ -1,7 +1,7 @@
 import type { CreateLabelDto, UpdateLabelDto } from '#schemas/labelSchemas.js'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 
-import { labelsTable } from '#db/schema.js'
+import { labelsTable, taskLabelsTable } from '#db/schema.js'
 import { Label } from '#models/label/label.js'
 import { eq } from 'drizzle-orm'
 
@@ -34,6 +34,16 @@ export class LabelRepository {
     const labels = result.map((labelRow) => this.toLabel(labelRow))
 
     return labels[0]
+  }
+
+  async findByTaskId(taskId: string): Promise<Label[]> {
+    const result = await this.db
+      .select({ label: labelsTable })
+      .from(taskLabelsTable)
+      .innerJoin(labelsTable, eq(taskLabelsTable.labelId, labelsTable.id))
+      .where(eq(taskLabelsTable.taskId, taskId))
+
+    return result.map((row) => this.toLabel(row.label))
   }
 
   async update(labelId: string, label: UpdateLabelDto): Promise<Label | undefined> {
