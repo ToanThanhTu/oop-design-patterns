@@ -5,6 +5,11 @@ export const optionalString = z.pipe(
   z.nullable(z.string()),
 )
 
+export const optionalFilterString = z.pipe(
+  z.transform((v: unknown) => (v === '' ? undefined : v)),
+  z.optional(z.string()),
+)
+
 export const optionalDate = z.pipe(
   z.transform((v: unknown) => (v === '' ? null : v)),
   z.nullable(z.iso.date()),

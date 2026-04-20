@@ -1,9 +1,9 @@
 import { del, get, patch, post, put } from '@/api/client'
 import { boardsApiUrl, columnsApiUrl, snapshotsApiUrl, tasksApiUrl } from '@/api/endpoints'
 import type { CreateBoardDto, UpdateBoardDto } from '@/schemas/boardSchemas'
+import type { FilterType } from '@/schemas/filterSchemas'
 import type { Board, BoardState } from '@/types/board'
 import type { Column } from '@/types/column'
-import type { Filter } from '@/types/filter'
 import type { CreateSnapshotDto, Snapshot } from '@/types/snapshot'
 import type { Task } from '@/types/task'
 
@@ -38,7 +38,10 @@ export async function getBoardSnapshots(id: string) {
 }
 
 export async function createBoardSnapshot(id: string, body: CreateSnapshotDto) {
-  const result = await post<CreateSnapshotDto, Snapshot>(`${boardsApiUrl}/${id}${snapshotsApiUrl}`, body)
+  const result = await post<CreateSnapshotDto, Snapshot>(
+    `${boardsApiUrl}/${id}${snapshotsApiUrl}`,
+    body,
+  )
   return result
 }
 
@@ -52,12 +55,14 @@ export async function redoBoardSnapshot(id: string) {
   return result
 }
 
-export async function getBoardTasks(id: string, filter: Filter) {
+export async function getBoardTasks(id: string, filter: FilterType) {
   const query = Object.fromEntries(Object.entries(filter).filter(([, v]) => v !== undefined))
 
   const urlSearchQuery = new URLSearchParams(query).toString()
 
-  const result = await get<Task[]>(`${boardsApiUrl}/${id}${tasksApiUrl}${urlSearchQuery ? `?${urlSearchQuery}` : ''}`)
+  const result = await get<Task[]>(
+    `${boardsApiUrl}/${id}${tasksApiUrl}${urlSearchQuery ? `?${urlSearchQuery}` : ''}`,
+  )
   return result
 }
 
@@ -67,6 +72,9 @@ export async function getBoardColumns(id: string) {
 }
 
 export async function reorderColumns(id: string, body: { columnIds: string[] }) {
-  const result = await patch<{ columnIds: string[] }, Column[]>(`${boardsApiUrl}/${id}${columnsApiUrl}/reorder`, body)
+  const result = await patch<{ columnIds: string[] }, Column[]>(
+    `${boardsApiUrl}/${id}${columnsApiUrl}/reorder`,
+    body,
+  )
   return result
 }

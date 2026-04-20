@@ -9,14 +9,19 @@ import { CreateColumnSchema } from '@/schemas/columnSchemas'
 import { CloneTaskSchema, CreateTaskSchema } from '@/schemas/taskSchemas'
 import { data } from 'react-router'
 import type { Route } from './+types/BoardPage'
+import { FilterSchema, type FilterType } from '@/schemas/filterSchemas'
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const url = new URL(request.url)
+
+  const filter: FilterType = FilterSchema.parse(Object.fromEntries(url.searchParams))
+
   const boardId = params.id
 
   const [board, columns, tasks] = await Promise.all([
     getBoard(boardId),
     getBoardColumns(boardId),
-    getBoardTasks(boardId, {}),
+    getBoardTasks(boardId, filter),
   ])
 
   if (!board) {

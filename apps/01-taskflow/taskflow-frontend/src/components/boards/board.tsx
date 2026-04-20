@@ -1,4 +1,5 @@
 import ColumnView from '@/components/columns/column'
+import { FilterBar } from '@/components/filter/filterBar'
 import CreateColumnForm from '@/components/form/createColumnForm'
 import Modal from '@/components/modal/modal'
 import { TaskDetails } from '@/components/tasks/taskDetails'
@@ -26,12 +27,12 @@ function formatDate(iso: string) {
 
 export default function BoardView({ board, columns, tasks }: BoardDetailProps) {
   const [showCreateColumnModal, setShowCreateColumnModal] = useState(false)
-  const [seachParams, setSearchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const sortedColumns = columns.toSorted((a, b) => a.position - b.position)
 
   // Open task details modal if task param exists
-  const taskId = seachParams.get('task')
+  const taskId = searchParams.get('task')
   const taskToOpen = tasks.find((task) => task.id === taskId)
 
   function closeTaskDetails() {
@@ -61,6 +62,8 @@ export default function BoardView({ board, columns, tasks }: BoardDetailProps) {
           <CreateColumnForm setShowCreateColumnModal={setShowCreateColumnModal} />
         </Modal>
       )}
+
+      <FilterBar />
 
       <div className="flex gap-4 overflow-x-auto px-6 pb-6">
         {sortedColumns.map((column) => {

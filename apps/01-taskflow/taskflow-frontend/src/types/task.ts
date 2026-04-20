@@ -1,5 +1,4 @@
-export type Priority = 'high' | 'low' | 'medium'
-export type TaskType = 'bug' | 'feature' | 'story' | 'task'
+import type { PriorityType, TaskTypeType } from '@/schemas/taskSchemas'
 
 export interface Task {
   assignee: null | string
@@ -10,22 +9,8 @@ export interface Task {
   id: string
   isTemplate: boolean
   position: number
-  priority: Priority
+  priority: PriorityType
   title: string
-  type: TaskType
+  type: TaskTypeType
   updatedAt: string
 }
-
-export interface CreateTaskDto {
-  assignee: null | string
-  columnId: string
-  description: null | string
-  dueDate: null | string
-  isTemplate: boolean
-  position?: number
-  priority: Priority
-  title: string
-  type: TaskType
-}
-
-export type UpdateTaskDto = Partial<CreateTaskDto>
