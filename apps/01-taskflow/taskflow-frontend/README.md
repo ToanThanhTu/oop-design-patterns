@@ -131,7 +131,20 @@ If the API throws, the transition ends without the real state updating → optim
 
 ### URL-driven Modals
 
-The task detail modal opens via `?task=<id>` search param, not component state. `ColumnView` reads `useSearchParams()` and renders the modal when the param matches a task in its column. This makes task URLs deep-linkable and shareable — refreshing the page keeps the modal open.
+The task detail modal opens via `?task=<id>` search param, not component state. `BoardView` reads `useSearchParams()` and renders the modal when the param matches a task. The `closeTaskDetails` callback (which clears the param) is passed as a prop to both `Modal` and `TaskDetails`, so children don't manipulate the URL directly. This makes task URLs deep-linkable and shareable — refreshing the page keeps the modal open.
+
+### Programmatic Mutations via `fetcher.submit()`
+
+For non-form mutations (e.g., clone button click), use `fetcher.submit()` with a plain object that React Router serializes to `FormData`:
+
+```ts
+cloneFetcher.submit(
+  { intent: 'clone-task', id: task.id },
+  { method: 'POST' },
+)
+```
+
+The board's `action` switches on `intent` to route between `create-column`, `create-task`, and `clone-task` handlers. Pattern scales well as more mutations are added.
 
 ## Commands
 

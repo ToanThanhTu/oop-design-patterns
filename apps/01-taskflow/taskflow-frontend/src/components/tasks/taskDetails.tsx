@@ -2,6 +2,7 @@ import { updateSubtask } from '@/api/subtaskApi'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
+import type { ActionResult } from '@/lib/errors/types'
 import { cn } from '@/lib/utils'
 import type { Label } from '@/types/label'
 import type { Subtask } from '@/types/subtask'
@@ -11,6 +12,7 @@ import { useFetcher } from 'react-router'
 
 interface TaskDetailsProps {
   task: Task
+  close: () => void
 }
 
 const priorityStyles: Record<Priority, string> = {
@@ -43,11 +45,25 @@ function initials(name: string) {
     .toUpperCase()
 }
 
-export function TaskDetails({ task }: TaskDetailsProps) {
+export function TaskDetails({ task, close }: TaskDetailsProps) {
   const subtaskFetcher = useFetcher<Subtask[]>()
   const labelFetcher = useFetcher<Label[]>()
+  const cloneFetcher = useFetcher<ActionResult<Task>>()
 
   const [isPending, startTransition] = useTransition()
+
+  const cloneResult = cloneFetcher.data
+  const isCloning = cloneFetcher.state !== 'idle'
+
+  useEffect(() => {
+    if (cloneFetcher.state === 'idle' && cloneResult?.ok) {
+      close()
+    }
+  }, [cloneFetcher.state, cloneResult, close])
+
+  function handleClone() {
+    cloneFetcher.submit({ intent: 'clone-task', id: task.id }, { method: 'POST' })
+  }
 
   const [optimisticSubtasks, addOptimisticSubtasks] = useOptimistic(
     subtaskFetcher.data ?? [],
@@ -270,6 +286,9 @@ export function TaskDetails({ task }: TaskDetailsProps) {
       <Separator />
 
       <footer className="flex justify-end gap-2">
+        <Button variant="outline" onClick={handleClone} disabled={isCloning}>
+          {isCloning ? 'Cloning…' : 'Clone'}
+        </Button>
         <Button variant="outline">Edit</Button>
         <Button variant="destructive">Delete</Button>
       </footer>

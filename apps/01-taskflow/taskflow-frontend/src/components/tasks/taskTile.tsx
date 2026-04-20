@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button'
+import type { ActionResult } from '@/lib/errors/types'
 import { cn } from '@/lib/utils'
 import type { Priority, Task, TaskType } from '@/types/task'
-import { Link } from 'react-router'
+import { Link, useFetcher } from 'react-router'
 
 interface TaskProps {
   task: Task
@@ -34,6 +35,12 @@ function initials(name: string) {
 }
 
 export default function TaskTile({ task }: TaskProps) {
+  const cloneFetcher = useFetcher<ActionResult<Task>>()
+
+  const handleClone = () => {
+    cloneFetcher.submit({ intent: 'clone-task', id: task.id }, { method: 'POST' })
+  }
+
   return (
     <div className="bg-card rounded-md shadow-sm p-3 cursor-pointer hover:shadow-md transition-shadow flex flex-col gap-2 relative">
       <Link to={`?task=${task.id}`}>
@@ -75,8 +82,13 @@ export default function TaskTile({ task }: TaskProps) {
         )}
       </Link>
 
-      <Button variant="outline" className="absolute top-2 right-2">
-        Clone
+      <Button
+        variant="outline"
+        className="absolute top-2 right-2"
+        onClick={handleClone}
+        disabled={cloneFetcher.state !== 'idle'}
+      >
+        {cloneFetcher.state !== 'idle' ? 'Cloning...' : 'Clone'}
       </Button>
     </div>
   )

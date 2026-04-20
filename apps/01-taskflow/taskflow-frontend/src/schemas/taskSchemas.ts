@@ -24,3 +24,9 @@ export type CreateTaskDto = z.infer<typeof CreateTaskSchema>
 export const UpdateTaskSchema = z.partial(CreateTaskSchema)
 
 export type UpdateTaskDto = z.infer<typeof UpdateTaskSchema>
+
+export const CloneTaskSchema = z.object({
+  id: z.uuid(),
+})
+
+export type CloneTaskDto = z.infer<typeof CloneTaskSchema>

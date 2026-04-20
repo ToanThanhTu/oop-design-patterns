@@ -34,6 +34,13 @@ export default function BoardView({ board, columns, tasks }: BoardDetailProps) {
   const taskId = seachParams.get('task')
   const taskToOpen = tasks.find((task) => task.id === taskId)
 
+  function closeTaskDetails() {
+    setSearchParams((prev) => {
+      prev.delete('task')
+      return prev
+    })
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <header className="mx-auto w-full max-w-6xl flex flex-col gap-3 px-6 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
@@ -63,15 +70,8 @@ export default function BoardView({ board, columns, tasks }: BoardDetailProps) {
       </div>
 
       {taskToOpen && (
-        <Modal
-          close={() =>
-            setSearchParams((prev) => {
-              prev.delete('task')
-              return prev
-            })
-          }
-        >
-          <TaskDetails task={taskToOpen} />
+        <Modal close={closeTaskDetails}>
+          <TaskDetails task={taskToOpen} close={closeTaskDetails} />
         </Modal>
       )}
     </div>
