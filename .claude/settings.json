@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "/home/itsupport/projects/trevor/oop-design-patterns/apps/01-taskflow/backend/src/shared"
+    ]
+  }
+}

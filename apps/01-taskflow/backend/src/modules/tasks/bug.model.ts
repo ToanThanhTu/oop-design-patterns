@@ -1,0 +1,28 @@
+import type { TaskType } from '#modules/tasks/task.types.js'
+
+import { Task } from '#modules/tasks/task.model.js'
+
+export class Bug extends Task {
+  constructor(data: Omit<TaskType, 'type'>) {
+    super({
+      ...data,
+      type: 'bug',
+    })
+  }
+
+  public clone(): Bug {
+    return new Bug({
+      assignee: this._assignee,
+      columnId: this._columnId,
+      createdAt: this._createdAt,
+      description: this._description,
+      dueDate: this._dueDate,
+      id: this._id,
+      isTemplate: false,
+      position: this._position,
+      priority: this._priority,
+      title: this._title,
+      updatedAt: this._updatedAt,
+    })
+  }
+}

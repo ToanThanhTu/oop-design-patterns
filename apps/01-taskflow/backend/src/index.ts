@@ -1,4 +1,4 @@
-import { errorHandler } from '#middleware/errorHandler.js'
+import { errorHandler } from '#shared/middleware/errorHandler.js'
 import {
   createBoard,
   createBoardSnapshot,
@@ -12,10 +12,10 @@ import {
   reorderColumns,
   undoBoardSnapshot,
   updateBoard,
-} from '#routes/boardRoutes.js'
-import { createColumn, deleteColumn, getColumn, updateColumn } from '#routes/columnRoutes.js'
-import { createLabel, getLabels } from '#routes/labelRoutes.js'
-import { deleteSubtask, updateSubtask } from '#routes/subtaskRoutes.js'
+} from '#modules/boards/board.routes.js'
+import { createColumn, deleteColumn, getColumn, updateColumn } from '#modules/columns/column.routes.js'
+import { createLabel, getLabels } from '#modules/labels/label.routes.js'
+import { deleteSubtask, updateSubtask } from '#modules/subtasks/subtask.routes.js'
 import {
   attachLabel,
   cloneTask,
@@ -27,7 +27,7 @@ import {
   getTaskLabels,
   getTaskSubtasks,
   updateTask,
-} from '#routes/taskRoutes.js'
+} from '#modules/tasks/task.routes.js'
 import cors from 'cors'
 import 'dotenv/config'
 import express from 'express'

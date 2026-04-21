@@ -39,18 +39,18 @@ A Kanban-style task board where users create, organize, and track tasks across c
 
 ```
 01-taskflow/
-├── backend/
+├── backend/                    # Domain-driven layout
 │   ├── src/
-│   │   ├── db/              # Drizzle schema + better-sqlite3 connection
-│   │   ├── models/          # Domain classes (get/set accessors, toType/toJSON)
-│   │   ├── patterns/        # prototype/, memento/, iterator/ subdirs
-│   │   ├── repositories/    # Data access (toModel/toRow, recreateRaw for snapshots)
-│   │   ├── services/        # Business logic + pattern coordination
-│   │   ├── schemas/         # Zod schemas (source of truth for DTOs)
-│   │   ├── routes/          # Express route handlers
-│   │   ├── middleware/      # errorHandler.ts
-│   │   ├── utils/           # errors.ts (HttpError hierarchy)
-│   │   ├── bootstrap.ts     # DI wiring (singletons for repos + services)
+│   │   ├── modules/         # Domain modules (boards/, columns/, tasks/, subtasks/, labels/)
+│   │   │   └── <domain>/    # <domain>.{model,types,schemas,repository,repository.drizzle,service,routes}.ts
+│   │   │                    # + patterns/ (memento for boards, prototype+iterator for tasks)
+│   │   │                    # + templates/ (tasks only)
+│   │   ├── shared/          # Cross-cutting (no domain)
+│   │   │   ├── db/          # Drizzle schema + better-sqlite3 connection + column helpers
+│   │   │   ├── middleware/  # errorHandler.ts
+│   │   │   ├── utils/       # errors.ts (HttpError hierarchy)
+│   │   │   └── filter.schemas.ts   # Cross-cutting task filter schema
+│   │   ├── bootstrap.ts     # DI wiring (Drizzle impls → interface types)
 │   │   ├── seed.ts          # Sample data (Development + Chores boards)
 │   │   └── index.ts         # Express app entry
 │   └── drizzle/             # Migration files

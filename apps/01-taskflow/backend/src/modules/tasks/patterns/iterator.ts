@@ -1,0 +1,74 @@
+import type { Task } from '#modules/tasks/task.model.js'
+import type { FilterType } from '#shared/filter.schemas.js'
+
+export class TaskIterator implements Iterable<Task> {
+  private filters: FilterType
+  private taskLabelMap: Map<string, string[]>
+  private tasks: Task[]
+
+  constructor(tasks: Task[], taskLabelMap?: Map<string, string[]>) {
+    this.tasks = tasks
+    this.taskLabelMap = taskLabelMap ?? new Map<string, string[]>()
+    this.filters = {
+      assignee: null,
+      dueDateFrom: null,
+      dueDateTo: null,
+      label: null,
+      priority: null,
+      type: null,
+    }
+  }
+
+  filterBy(filters: FilterType): this {
+    this.filters = filters
+    return this
+  }
+
+  *[Symbol.iterator](): Generator<Task> {
+    for (const task of this.tasks) {
+      if (this.matchesFilters(task)) {
+        yield task
+      }
+    }
+  }
+
+  private matchesFilters(task: Task): boolean {
+    if (this.filters.label) {
+      const taskLabels = this.taskLabelMap.get(task.id)
+
+      if (!taskLabels?.includes(this.filters.label)) {
+        return false
+      }
+    }
+
+    if (this.filters.assignee && task.assignee !== this.filters.assignee) {
+      return false
+    }
+
+    if (this.filters.priority && task.priority !== this.filters.priority) {
+      return false
+    }
+
+    if (this.filters.type && task.type !== this.filters.type) {
+      return false
+    }
+
+    const taskDueDate = task.dueDate
+
+    if (this.filters.dueDateFrom || this.filters.dueDateTo) {
+      if (!taskDueDate) {
+        return false
+      }
+
+      if (this.filters.dueDateFrom && taskDueDate < this.filters.dueDateFrom) {
+        return false
+      }
+
+      if (this.filters.dueDateTo && taskDueDate > this.filters.dueDateTo) {
+        return false
+      }
+    }
+
+    return true
+  }
+}

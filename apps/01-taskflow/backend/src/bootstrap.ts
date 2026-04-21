@@ -1,27 +1,36 @@
-import { db } from '#db/connection.js'
-import { BoardRepository } from '#repositories/boardRepository.js'
-import { ColumnRepository } from '#repositories/columnRepository.js'
-import { LabelRepository } from '#repositories/labelRepository.js'
-import { SnapshotRepository } from '#repositories/snapshotRepository.js'
-import { SubtaskRepository } from '#repositories/subtaskRepository.js'
-import { TaskLabelRepository } from '#repositories/taskLabelRepository.js'
-import { TaskRepository } from '#repositories/taskRepository.js'
-import { BoardService } from '#services/boardService.js'
-import { ColumnService } from '#services/columnService.js'
-import { LabelService } from '#services/labelService.js'
-import { SubtaskService } from '#services/subtaskService.js'
-import { TaskLabelService } from '#services/taskLabelService.js'
-import { TaskService } from '#services/taskService.js'
+import type { BoardRepository } from '#modules/boards/board.repository.js'
+import type { ColumnRepository } from '#modules/columns/column.repository.js'
+import type { LabelRepository } from '#modules/labels/label.repository.js'
+import type { SnapshotRepository } from '#modules/boards/snapshot.repository.js'
+import type { SubtaskRepository } from '#modules/subtasks/subtask.repository.js'
+import type { TaskLabelRepository } from '#modules/labels/taskLabel.repository.js'
+import type { TaskRepository } from '#modules/tasks/task.repository.js'
 
-const taskRepository = new TaskRepository(db)
-const taskLabelRepository = new TaskLabelRepository(db)
-const snapshotRepository = new SnapshotRepository(db)
-const subtaskRepository = new SubtaskRepository(db)
-const boardRepository = new BoardRepository(db)
-const columnRepository = new ColumnRepository(db)
-const labelRepository = new LabelRepository(db)
+import { db } from '#shared/db/connection.js'
+import { DrizzleBoardRepository } from '#modules/boards/board.repository.drizzle.js'
+import { DrizzleColumnRepository } from '#modules/columns/column.repository.drizzle.js'
+import { DrizzleLabelRepository } from '#modules/labels/label.repository.drizzle.js'
+import { DrizzleSnapshotRepository } from '#modules/boards/snapshot.repository.drizzle.js'
+import { DrizzleSubtaskRepository } from '#modules/subtasks/subtask.repository.drizzle.js'
+import { DrizzleTaskLabelRepository } from '#modules/labels/taskLabel.repository.drizzle.js'
+import { DrizzleTaskRepository } from '#modules/tasks/task.repository.drizzle.js'
+import { BoardService } from '#modules/boards/board.service.js'
+import { ColumnService } from '#modules/columns/column.service.js'
+import { LabelService } from '#modules/labels/label.service.js'
+import { SubtaskService } from '#modules/subtasks/subtask.service.js'
+import { TaskLabelService } from '#modules/labels/taskLabel.service.js'
+import { TaskService } from '#modules/tasks/task.service.js'
+
+const boardRepository: BoardRepository = new DrizzleBoardRepository(db)
+const columnRepository: ColumnRepository = new DrizzleColumnRepository(db)
+const labelRepository: LabelRepository = new DrizzleLabelRepository(db)
+const snapshotRepository: SnapshotRepository = new DrizzleSnapshotRepository(db)
+const subtaskRepository: SubtaskRepository = new DrizzleSubtaskRepository(db)
+const taskLabelRepository: TaskLabelRepository = new DrizzleTaskLabelRepository(db)
+const taskRepository: TaskRepository = new DrizzleTaskRepository(db)
 
 export const columnService = new ColumnService(columnRepository)
+export const labelService = new LabelService(labelRepository)
 export const subtaskService = new SubtaskService(subtaskRepository)
 export const taskLabelService = new TaskLabelService(taskLabelRepository)
 export const taskService = new TaskService(taskRepository, subtaskService, taskLabelService)
@@ -33,4 +42,3 @@ export const boardService = new BoardService(
   taskLabelService,
   taskService,
 )
-export const labelService = new LabelService(labelRepository)

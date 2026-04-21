@@ -1,0 +1,59 @@
+import type { TaskLabelRepository } from '#modules/labels/taskLabel.repository.js'
+import type { AddTaskLabelDto, RemoveTaskLabelDto } from '#modules/labels/taskLabel.schemas.js'
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
+
+import { taskLabelsTable } from '#shared/db/schema.js'
+import { TaskLabel } from '#modules/labels/taskLabel.model.js'
+import { and, eq } from 'drizzle-orm'
+
+export class DrizzleTaskLabelRepository implements TaskLabelRepository {
+  constructor(private db: BetterSQLite3Database) {}
+
+  async add(taskLabel: AddTaskLabelDto): Promise<TaskLabel | undefined> {
+    const result = await this.db.insert(taskLabelsTable).values(taskLabel).returning()
+
+    const taskLabels = result.map((row) => this.toTaskLabel(row))
+
+    return taskLabels[0]
+  }
+
+  async findByLabelId(labelId: string): Promise<TaskLabel[]> {
+    const result = await this.db
+      .select()
+      .from(taskLabelsTable)
+      .where(eq(taskLabelsTable.labelId, labelId))
+
+    const taskLabels = result.map((row) => this.toTaskLabel(row))
+
+    return taskLabels
+  }
+
+  async findByTaskId(taskId: string): Promise<TaskLabel[]> {
+    const result = await this.db
+      .select()
+      .from(taskLabelsTable)
+      .where(eq(taskLabelsTable.taskId, taskId))
+
+    const taskLabels = result.map((row) => this.toTaskLabel(row))
+
+    return taskLabels
+  }
+
+  async remove(taskLabel: RemoveTaskLabelDto): Promise<void> {
+    await this.db
+      .delete(taskLabelsTable)
+      .where(
+        and(
+          eq(taskLabelsTable.taskId, taskLabel.taskId),
+          eq(taskLabelsTable.labelId, taskLabel.labelId),
+        ),
+      )
+  }
+
+  private toTaskLabel(row: typeof taskLabelsTable.$inferSelect): TaskLabel {
+    return new TaskLabel({
+      labelId: row.labelId,
+      taskId: row.taskId,
+    })
+  }
+}

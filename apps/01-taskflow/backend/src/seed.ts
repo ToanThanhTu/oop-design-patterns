@@ -1,4 +1,4 @@
-import { db } from '#db/connection.js'
+import { db } from '#shared/db/connection.js'
 import {
   boardsTable,
   columnsTable,
@@ -6,7 +6,7 @@ import {
   subtasksTable,
   taskLabelsTable,
   tasksTable,
-} from '#db/schema.js'
+} from '#shared/db/schema.js'
 import { sql } from 'drizzle-orm'
 
 // Clear existing data (reverse FK order)
