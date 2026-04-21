@@ -1,14 +1,14 @@
-import { updateSubtask } from '@/modules/subtasks/api'
+import TaskLabelList from '@/modules/labels/components/TaskLabelList'
+import SubtaskList from '@/modules/subtasks/components/SubtaskList'
+import type { Task } from '@/modules/tasks/entities/task'
+import EditTaskForm from '@/modules/tasks/components/EditTaskForm'
+import type { PriorityType, TaskTypeType } from '@/modules/tasks/schemas'
+import ConfirmModal from '@/shared/components/modal/ConfirmModal'
 import { Button } from '@/shared/components/ui/button'
-import { Checkbox } from '@/shared/components/ui/checkbox'
 import { Separator } from '@/shared/components/ui/separator'
 import type { ActionResult } from '@/shared/lib/errors/types'
 import { cn } from '@/shared/lib/utils'
-import type { Label } from '@/modules/labels/entities/label'
-import type { Subtask } from '@/modules/subtasks/entities/subtask'
-import type { PriorityType, TaskTypeType } from '@/modules/tasks/schemas'
-import type { Task } from '@/modules/tasks/entities/task'
-import { useEffect, useOptimistic, useTransition } from 'react'
+import { useEffect, useState } from 'react'
 import { useFetcher } from 'react-router'
 
 interface TaskDetailsProps {
@@ -47,14 +47,19 @@ function initials(name: string) {
 }
 
 export function TaskDetails({ task, close }: TaskDetailsProps) {
-  const subtaskFetcher = useFetcher<Subtask[]>()
-  const labelFetcher = useFetcher<Label[]>()
   const cloneFetcher = useFetcher<ActionResult<Task>>()
+  const deleteFetcher = useFetcher<ActionResult<void>>()
 
-  const [isPending, startTransition] = useTransition()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isEditDirty, setIsEditDirty] = useState(false)
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false)
 
   const cloneResult = cloneFetcher.data
   const isCloning = cloneFetcher.state !== 'idle'
+
+  const deleteResult = deleteFetcher.data
+  const isDeleting = deleteFetcher.state !== 'idle'
 
   useEffect(() => {
     if (cloneFetcher.state === 'idle' && cloneResult?.ok) {
@@ -62,46 +67,63 @@ export function TaskDetails({ task, close }: TaskDetailsProps) {
     }
   }, [cloneFetcher.state, cloneResult, close])
 
+  useEffect(() => {
+    if (deleteFetcher.state === 'idle' && deleteResult?.ok) {
+      // close() unmounts this component, so showDeleteConfirm doesn't need resetting
+      close()
+    }
+  }, [deleteFetcher.state, deleteResult, close])
+
   function handleClone() {
     cloneFetcher.submit({ intent: 'clone-task', id: task.id }, { method: 'POST' })
   }
 
-  const [optimisticSubtasks, addOptimisticSubtasks] = useOptimistic(
-    subtaskFetcher.data ?? [],
-    (current: Subtask[], toggleId: string) =>
-      current.map((s) => (s.id === toggleId ? { ...s, isComplete: !s.isComplete } : s)),
-  )
+  function handleConfirmDelete() {
+    deleteFetcher.submit({ intent: 'delete-task', id: task.id }, { method: 'POST' })
+  }
 
-  useEffect(() => {
-    if (subtaskFetcher.state === 'idle' && !subtaskFetcher.data) {
-      subtaskFetcher.load(`/api/tasks/${task.id}/subtasks`)
+  function handleRequestCancelEdit() {
+    if (isEditDirty) {
+      setShowDiscardConfirm(true)
+    } else {
+      setIsEditing(false)
     }
+  }
 
-    if (labelFetcher.state === 'idle' && !labelFetcher.data) {
-      labelFetcher.load(`/api/tasks/${task.id}/labels`)
-    }
-  }, [subtaskFetcher, labelFetcher, task.id])
+  function handleConfirmDiscard() {
+    setIsEditing(false)
+    setIsEditDirty(false)
+    setShowDiscardConfirm(false)
+  }
 
-  const sortedSubtasks = [...optimisticSubtasks].sort((a, b) => a.position - b.position)
-  const completedSubtaskCount = optimisticSubtasks.filter((s) => s.isComplete).length
-  const totalSubtaskCount = optimisticSubtasks.length
-  const subtaskProgress =
-    totalSubtaskCount > 0 ? Math.round((completedSubtaskCount / totalSubtaskCount) * 100) : 0
-  const isLoadingSubtasks = subtaskFetcher.state === 'loading' && !subtaskFetcher.data
+  function handleEditSuccess() {
+    setIsEditing(false)
+    setIsEditDirty(false)
+  }
 
-  const labels = labelFetcher.data ?? []
-  const isLoadingLabels = labelFetcher.state === 'loading' && !labelFetcher.data
+  if (isEditing) {
+    return (
+      <div className="flex flex-col gap-4 w-130 max-w-full">
+        <EditTaskForm
+          task={task}
+          onCancel={handleRequestCancelEdit}
+          onDirtyChange={setIsEditDirty}
+          onSuccess={handleEditSuccess}
+        />
 
-  function handleToggleSubtask(subtask: Subtask) {
-    startTransition(async () => {
-      addOptimisticSubtasks(subtask.id)
-      try {
-        await updateSubtask(subtask.id, { isComplete: !subtask.isComplete })
-        subtaskFetcher.load(`/api/tasks/${task.id}/subtasks`)
-      } catch {
-        // On failure, the transition ends and optimistic state auto-reverts
-      }
-    })
+        {showDiscardConfirm && (
+          <ConfirmModal
+            title="Discard changes?"
+            message="You have unsaved changes. Are you sure you want to discard them?"
+            confirmLabel="Discard"
+            cancelLabel="Keep editing"
+            variant="destructive"
+            close={() => setShowDiscardConfirm(false)}
+            onConfirm={handleConfirmDiscard}
+          />
+        )}
+      </div>
+    )
   }
 
   return (
@@ -198,101 +220,41 @@ export function TaskDetails({ task, close }: TaskDetailsProps) {
 
       <Separator />
 
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Subtasks
-          </h3>
-          {totalSubtaskCount > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {completedSubtaskCount} / {totalSubtaskCount} completed
-            </span>
-          )}
-        </div>
-
-        {totalSubtaskCount > 0 && (
-          <div className="h-1 rounded-full bg-muted overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${subtaskProgress}%` }}
-            />
-          </div>
-        )}
-
-        {isLoadingSubtasks ? (
-          <p className="text-sm text-muted-foreground italic">Loading subtasks…</p>
-        ) : totalSubtaskCount === 0 ? (
-          <p className="text-sm text-muted-foreground italic">No subtasks</p>
-        ) : (
-          <ul className={cn('flex flex-col gap-1', isPending && 'opacity-70')}>
-            {sortedSubtasks.map((subtask) => (
-              <li
-                key={subtask.id}
-                className="flex items-center gap-2 rounded px-2 py-1.5 hover:bg-muted/50 transition-colors"
-              >
-                <Checkbox
-                  id={`subtask-${subtask.id}`}
-                  checked={subtask.isComplete}
-                  onCheckedChange={() => handleToggleSubtask(subtask)}
-                />
-                <label
-                  htmlFor={`subtask-${subtask.id}`}
-                  className={cn(
-                    'text-sm flex-1 cursor-pointer select-none',
-                    subtask.isComplete && 'line-through text-muted-foreground',
-                  )}
-                >
-                  {subtask.title}
-                </label>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <SubtaskList taskId={task.id} />
 
       <Separator />
 
-      <section className="flex flex-col gap-2">
-        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Labels
-        </h3>
-        {isLoadingLabels ? (
-          <p className="text-sm text-muted-foreground italic">Loading labels…</p>
-        ) : labels.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">No labels</p>
-        ) : (
-          <ul className="flex flex-wrap gap-1.5">
-            {labels.map((label) => (
-              <li key={label.id}>
-                <span
-                  className="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full border"
-                  style={{
-                    backgroundColor: `${label.color}20`,
-                    borderColor: `${label.color}40`,
-                    color: label.color,
-                  }}
-                >
-                  <span
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ backgroundColor: label.color }}
-                  />
-                  {label.name}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <TaskLabelList taskId={task.id} />
 
       <Separator />
 
       <footer className="flex justify-end gap-2">
-        <Button variant="outline" onClick={handleClone} disabled={isCloning}>
+        <Button variant="outline" onClick={handleClone} disabled={isCloning || isDeleting}>
           {isCloning ? 'Cloning…' : 'Clone'}
         </Button>
-        <Button variant="outline">Edit</Button>
-        <Button variant="destructive">Delete</Button>
+        <Button variant="outline" onClick={() => setIsEditing(true)} disabled={isDeleting}>
+          Edit
+        </Button>
+        <Button
+          variant="destructive"
+          onClick={() => setShowDeleteConfirm(true)}
+          disabled={isDeleting}
+        >
+          Delete
+        </Button>
       </footer>
+
+      {showDeleteConfirm && (
+        <ConfirmModal
+          title="Delete this task?"
+          message={`"${task.title}" will be permanently removed along with its subtasks and label associations.`}
+          confirmLabel="Delete"
+          variant="destructive"
+          isPending={isDeleting}
+          close={() => setShowDeleteConfirm(false)}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
     </div>
   )
 }

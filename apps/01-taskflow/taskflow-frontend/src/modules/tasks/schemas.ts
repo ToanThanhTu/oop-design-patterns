@@ -30,3 +30,21 @@ export const CloneTaskSchema = z.object({
 })
 
 export type CloneTaskDto = z.infer<typeof CloneTaskSchema>
+
+export const DeleteTaskSchema = z.object({
+  id: z.uuid(),
+})
+
+export type DeleteTaskDto = z.infer<typeof DeleteTaskSchema>
+
+export const EditTaskSchema = z.object({
+  assignee: optionalString,
+  description: optionalString,
+  dueDate: optionalDate,
+  id: z.uuid(),
+  priority: PrioritySchema,
+  title: z.string().check(z.minLength(1)),
+  type: TaskTypeSchema,
+})
+
+export type EditTaskDto = z.infer<typeof EditTaskSchema>

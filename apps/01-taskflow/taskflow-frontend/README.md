@@ -34,15 +34,17 @@ src/
 │   │   ├── api.ts
 │   │   └── schemas.ts
 │   ├── tasks/
-│   │   ├── components/       # TaskTile, TaskDetails, CreateTaskForm
+│   │   ├── components/       # TaskTile, TaskDetails, CreateTaskForm, EditTaskForm
 │   │   ├── entities/         # task.ts
-│   │   ├── actions.ts        # handleCreateTask, handleCloneTask
+│   │   ├── actions.ts        # handleCreateTask, handleCloneTask, handleEditTask, handleDeleteTask
 │   │   ├── api.ts
 │   │   └── schemas.ts
 │   ├── subtasks/
+│   │   ├── components/       # SubtaskList (fetch + useOptimistic + CRUD UI)
 │   │   ├── entities/         # subtask.ts
 │   │   └── api.ts
 │   └── labels/
+│       ├── components/       # TaskLabelList (fetch + colored pills)
 │       ├── entities/         # label.ts, taskLabel.ts
 │       └── api.ts
 ├── shared/                   # Cross-cutting (no domain)
@@ -51,7 +53,7 @@ src/
 │   │   └── endpoints.ts      # Centralized URL constants
 │   ├── components/
 │   │   ├── forms/            # RequiredIndicator
-│   │   ├── modal/            # Modal (backdrop + click-outside-to-close)
+│   │   ├── modal/            # Modal + ConfirmModal (reusable confirm dialog)
 │   │   └── ui/               # shadcn primitives (Button, Checkbox, Input, Select, etc.)
 │   ├── filter/               # Filter bar (not tied to any backend resource)
 │   │   ├── components/       # FilterBar
@@ -146,7 +148,27 @@ Routes that export only a `loader` (no default component). Used for on-demand da
 - `/api/tasks/:id/subtasks` → `routes/api.tasks.$id.subtasks.tsx`
 - `/api/tasks/:id/labels` → `routes/api.tasks.$id.labels.tsx`
 
-Registered explicitly in `routes.ts`. The `TaskDetails` modal calls them on mount via `useEffect` + `fetcher.load()`.
+Registered explicitly in `routes.ts`. Called by `SubtaskList` / `TaskLabelList` on mount via `useEffect` + `fetcher.load()`.
+
+### Mutation Pattern Split
+
+Not all mutations go through server actions. The split:
+
+- **Optimistic, scope-local mutations** → direct API calls wrapped in `startTransition`, tracked with `useOptimistic`.
+  Example: subtask toggle/delete/create/inline-edit in `SubtaskList`.
+  Reason: `fetcher.submit()` is fire-and-forget (not awaitable), so `useOptimistic` inside a sync `startTransition` would snap back before the mutation completes. Direct API calls are awaitable.
+
+- **Navigational or form mutations** → `fetcher.submit({ intent, ... })` to `BoardPage.action` or `HomePage.action`, handled by `modules/<domain>/actions.ts`.
+  Example: create-board, create-column, create-task, clone-task, edit-task, delete-task.
+  Reason: benefits from intent dispatch, typed `ActionResult<T>`, and automatic loader revalidation.
+
+### Reusable Confirm Dialog
+
+`shared/components/modal/ConfirmModal.tsx` composes `Modal` with a fixed content shape: title, message, confirm/cancel buttons. Takes `variant: 'default' | 'destructive'`, `isPending`, and `onConfirm` callback. Used for Task Delete confirm and Edit Discard prompt.
+
+### Task Edit Mode
+
+`TaskDetails` swaps between read and edit modes via `isEditing` state. Edit mode renders `EditTaskForm` (mirrors `CreateTaskForm` layout with `defaultValue` on each field). Dirty state is tracked via `<form onChange>` callback that the form reports back to the parent; Cancel with dirty changes opens a discard `ConfirmModal`.
 
 ### Optimistic Updates (`useOptimistic` + `useTransition`)
 

@@ -1,7 +1,12 @@
 import { getBoard, getBoardColumns, getBoardTasks } from '@/modules/boards/api'
 import BoardView from '@/modules/boards/components/BoardView'
 import { handleCreateColumn } from '@/modules/columns/actions'
-import { handleCloneTask, handleCreateTask } from '@/modules/tasks/actions'
+import {
+  handleCloneTask,
+  handleCreateTask,
+  handleDeleteTask,
+  handleEditTask,
+} from '@/modules/tasks/actions'
 import { FilterSchema, type FilterType } from '@/shared/filter/schemas'
 import { BadRequestError } from '@/shared/lib/errors/httpError'
 import { data } from 'react-router'
@@ -56,6 +61,10 @@ export async function action({ request, params }: Route.ActionArgs) {
       return handleCreateTask(formData)
     case 'clone-task':
       return handleCloneTask(formData)
+    case 'delete-task':
+      return handleDeleteTask(formData)
+    case 'edit-task':
+      return handleEditTask(formData)
     default:
       throw new BadRequestError('Wrong intent.')
   }
