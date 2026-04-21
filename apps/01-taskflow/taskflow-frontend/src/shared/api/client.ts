@@ -1,4 +1,4 @@
-import { HttpError } from '@/lib/errors/httpError'
+import { HttpError } from '@/shared/lib/errors/httpError'
 
 const baseApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 

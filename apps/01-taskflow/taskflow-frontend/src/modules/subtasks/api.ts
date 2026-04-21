@@ -1,5 +1,5 @@
-import { del, put } from '@/api/client'
-import type { Subtask, UpdateSubtaskDto } from '@/types/subtask'
+import { del, put } from '@/shared/api/client'
+import type { Subtask, UpdateSubtaskDto } from '@/modules/subtasks/entities/subtask'
 
 const subtasksApiUrl = '/subtasks'
 

@@ -1,7 +1,7 @@
-import { del, get, post, put } from '@/api/client'
-import { boardsApiUrl, columnsApiUrl } from '@/api/endpoints'
-import type { CreateColumnDto, UpdateColumnDto } from '@/schemas/columnSchemas'
-import type { Column } from '@/types/column'
+import { del, get, post, put } from '@/shared/api/client'
+import { boardsApiUrl, columnsApiUrl } from '@/shared/api/endpoints'
+import type { CreateColumnDto, UpdateColumnDto } from '@/modules/columns/schemas'
+import type { Column } from '@/modules/columns/entities/column'
 
 export async function getColumn(id: string) {
   return get<Column>(`${columnsApiUrl}/${id}`)

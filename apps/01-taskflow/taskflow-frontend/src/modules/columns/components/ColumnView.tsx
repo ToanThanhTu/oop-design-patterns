@@ -1,9 +1,9 @@
-import CreateTaskForm from '@/components/form/createTaskForm'
-import Modal from '@/components/modal/modal'
-import TaskTile from '@/components/tasks/taskTile'
-import { Button } from '@/components/ui/button'
-import type { Column } from '@/types/column'
-import type { Task } from '@/types/task'
+import CreateTaskForm from '@/modules/tasks/components/CreateTaskForm'
+import Modal from '@/shared/components/modal/Modal'
+import TaskTile from '@/modules/tasks/components/TaskTile'
+import { Button } from '@/shared/components/ui/button'
+import type { Column } from '@/modules/columns/entities/column'
+import type { Task } from '@/modules/tasks/entities/task'
 import { useState } from 'react'
 
 interface ColumnProps {

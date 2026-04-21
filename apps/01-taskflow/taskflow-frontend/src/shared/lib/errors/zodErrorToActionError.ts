@@ -1,4 +1,4 @@
-import type { ActionError, ZodErrorLike } from '@/lib/errors/types'
+import type { ActionError, ZodErrorLike } from '@/shared/lib/errors/types'
 
 export function zodErrorToActionError(zodError: ZodErrorLike): ActionError {
   const fieldErrors: Record<string, string> = {}

@@ -1,4 +1,4 @@
-import { getTaskSubtasks } from '@/api/taskApi'
+import { getTaskSubtasks } from '@/modules/tasks/api'
 import type { Route } from './+types/api.tasks.$id.subtasks'
 
 // Task resource route: fetcher load subtasks

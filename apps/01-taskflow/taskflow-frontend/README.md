@@ -16,39 +16,69 @@ React 19 Kanban UI for the TaskFlow backend. Uses React Router v7 in framework m
 
 ## Structure
 
+Domain-driven layout: each backend resource has its own module under `src/modules/` with components, entities, schemas, api, and actions colocated. Cross-cutting code lives under `src/shared/`.
+
 ```
 src/
-├── api/                      # Fetch wrappers + resource functions
-│   ├── client.ts             # Base get/post/put/patch/del with typed generics
-│   ├── endpoints.ts          # Centralized URL constants
-│   ├── boardApi.ts           # Board CRUD + snapshots + tasks + columns
-│   ├── taskApi.ts            # Task CRUD + clone + subtasks + labels
-│   ├── columnApi.ts          # Column CRUD
-│   ├── subtaskApi.ts         # Subtask CRUD
-│   └── labelApi.ts           # Label list + create
-├── components/
-│   ├── boards/               # BoardList, BoardView
-│   ├── columns/              # ColumnView (task details modal hosted here via ?task= search param)
-│   ├── tasks/                # TaskTile, TaskDetails
-│   ├── form/                 # CreateBoardForm, CreateColumnForm, CreateTaskForm, RequiredIndicator
-│   ├── modal/                # Modal (backdrop + click-outside-to-close)
-│   └── ui/                   # shadcn primitives (Button, Checkbox, Input, Select, etc.)
-├── lib/
-│   ├── errors/               # ActionError + ActionResult + normalizers
-│   ├── formHelpers.ts        # Zod helpers: optionalString, optionalDate, checkbox
-│   └── utils.ts              # cn() helper (clsx + tailwind-merge)
+├── modules/                  # Domain modules
+│   ├── boards/
+│   │   ├── components/       # BoardList, BoardView, CreateBoardForm
+│   │   ├── entities/         # board.ts, snapshot.ts
+│   │   ├── actions.ts        # handleCreateBoard
+│   │   ├── api.ts            # Board CRUD + snapshots + tasks + columns
+│   │   └── schemas.ts        # Zod + derived DTOs
+│   ├── columns/
+│   │   ├── components/       # ColumnView, CreateColumnForm
+│   │   ├── entities/         # column.ts
+│   │   ├── actions.ts        # handleCreateColumn(formData, boardId)
+│   │   ├── api.ts
+│   │   └── schemas.ts
+│   ├── tasks/
+│   │   ├── components/       # TaskTile, TaskDetails, CreateTaskForm
+│   │   ├── entities/         # task.ts
+│   │   ├── actions.ts        # handleCreateTask, handleCloneTask
+│   │   ├── api.ts
+│   │   └── schemas.ts
+│   ├── subtasks/
+│   │   ├── entities/         # subtask.ts
+│   │   └── api.ts
+│   └── labels/
+│       ├── entities/         # label.ts, taskLabel.ts
+│       └── api.ts
+├── shared/                   # Cross-cutting (no domain)
+│   ├── api/
+│   │   ├── client.ts         # Base get/post/put/patch/del with typed generics
+│   │   └── endpoints.ts      # Centralized URL constants
+│   ├── components/
+│   │   ├── forms/            # RequiredIndicator
+│   │   ├── modal/            # Modal (backdrop + click-outside-to-close)
+│   │   └── ui/               # shadcn primitives (Button, Checkbox, Input, Select, etc.)
+│   ├── filter/               # Filter bar (not tied to any backend resource)
+│   │   ├── components/       # FilterBar
+│   │   └── schemas.ts        # FilterSchema + FilterType
+│   └── lib/
+│       ├── errors/           # ActionError + ActionResult + normalizers
+│       ├── formHelpers.ts    # Zod helpers: optionalString, optionalDate, checkbox, optionalFilterString
+│       └── utils.ts          # cn() helper (clsx + tailwind-merge)
 ├── pages/                    # Route modules (loader + action + component)
+│   ├── HomePage.tsx
+│   └── BoardPage.tsx
 ├── routes/                   # Resource routes (loader-only, no component)
 │   ├── api.tasks.$id.subtasks.tsx
 │   └── api.tasks.$id.labels.tsx
-├── schemas/                  # Frontend Zod schemas (form input only)
-├── types/                    # Plain-object types mirroring backend DTOs
 ├── entry.client.tsx          # Hydration (hydrateRoot + HydratedRouter)
 ├── entry.server.tsx          # Streaming SSR (renderToPipeableStream)
 ├── root.tsx                  # Layout + shared ErrorBoundary
 ├── routes.ts                 # Route config (routes() / index() helpers)
 └── index.css                 # Tailwind + shadcn theme tokens
 ```
+
+### Import rules
+
+- `modules/<a>/*` **may** import from `shared/*` and from its own submodules
+- `modules/<a>/*` **may** import from `modules/<b>/*` through its public files (api, entities, schemas)
+- `shared/*` **never** imports from `modules/*`
+- `pages/*` and `routes/*` orchestrate everything: they import from both `modules/*` and `shared/*`
 
 ## Key Patterns
 

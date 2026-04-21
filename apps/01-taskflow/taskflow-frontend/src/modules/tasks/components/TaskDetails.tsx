@@ -1,12 +1,13 @@
-import { updateSubtask } from '@/api/subtaskApi'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Separator } from '@/components/ui/separator'
-import type { ActionResult } from '@/lib/errors/types'
-import { cn } from '@/lib/utils'
-import type { Label } from '@/types/label'
-import type { Subtask } from '@/types/subtask'
-import type { Priority, Task, TaskType } from '@/types/task'
+import { updateSubtask } from '@/modules/subtasks/api'
+import { Button } from '@/shared/components/ui/button'
+import { Checkbox } from '@/shared/components/ui/checkbox'
+import { Separator } from '@/shared/components/ui/separator'
+import type { ActionResult } from '@/shared/lib/errors/types'
+import { cn } from '@/shared/lib/utils'
+import type { Label } from '@/modules/labels/entities/label'
+import type { Subtask } from '@/modules/subtasks/entities/subtask'
+import type { PriorityType, TaskTypeType } from '@/modules/tasks/schemas'
+import type { Task } from '@/modules/tasks/entities/task'
 import { useEffect, useOptimistic, useTransition } from 'react'
 import { useFetcher } from 'react-router'
 
@@ -15,13 +16,13 @@ interface TaskDetailsProps {
   close: () => void
 }
 
-const priorityStyles: Record<Priority, string> = {
+const priorityStyles: Record<PriorityType, string> = {
   high: 'bg-red-100 text-red-700',
   low: 'bg-gray-100 text-gray-700',
   medium: 'bg-blue-100 text-blue-700',
 }
 
-const typeStyles: Record<TaskType, string> = {
+const typeStyles: Record<TaskTypeType, string> = {
   bug: 'bg-orange-100 text-orange-700',
   feature: 'bg-purple-100 text-purple-700',
   story: 'bg-green-100 text-green-700',

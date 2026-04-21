@@ -1,11 +1,11 @@
-import { del, get, patch, post, put } from '@/api/client'
-import { boardsApiUrl, columnsApiUrl, snapshotsApiUrl, tasksApiUrl } from '@/api/endpoints'
-import type { CreateBoardDto, UpdateBoardDto } from '@/schemas/boardSchemas'
-import type { FilterType } from '@/schemas/filterSchemas'
-import type { Board, BoardState } from '@/types/board'
-import type { Column } from '@/types/column'
-import type { CreateSnapshotDto, Snapshot } from '@/types/snapshot'
-import type { Task } from '@/types/task'
+import { del, get, patch, post, put } from '@/shared/api/client'
+import { boardsApiUrl, columnsApiUrl, snapshotsApiUrl, tasksApiUrl } from '@/shared/api/endpoints'
+import type { CreateBoardDto, UpdateBoardDto } from '@/modules/boards/schemas'
+import type { FilterType } from '@/shared/filter/schemas'
+import type { Board, BoardState } from '@/modules/boards/entities/board'
+import type { Column } from '@/modules/columns/entities/column'
+import type { CreateSnapshotDto, Snapshot } from '@/modules/boards/entities/snapshot'
+import type { Task } from '@/modules/tasks/entities/task'
 
 export async function getBoards() {
   const result = await get<Board[]>(boardsApiUrl)

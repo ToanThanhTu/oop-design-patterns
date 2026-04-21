@@ -1,4 +1,4 @@
-import type { PriorityType, TaskTypeType } from '@/schemas/taskSchemas'
+import type { PriorityType, TaskTypeType } from '@/modules/tasks/schemas'
 
 export interface Task {
   assignee: null | string

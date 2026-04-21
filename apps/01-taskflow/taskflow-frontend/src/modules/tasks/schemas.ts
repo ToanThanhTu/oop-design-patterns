@@ -1,4 +1,4 @@
-import { checkbox, optionalDate, optionalString } from '@/lib/formHelpers'
+import { checkbox, optionalDate, optionalString } from '@/shared/lib/formHelpers'
 import * as z from 'zod/mini'
 
 export const PrioritySchema = z.enum(['low', 'medium', 'high'])

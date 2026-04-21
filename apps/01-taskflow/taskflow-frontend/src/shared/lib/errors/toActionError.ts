@@ -1,5 +1,5 @@
-import { HttpError } from '@/lib/errors/httpError'
-import type { ActionError } from '@/lib/errors/types'
+import { HttpError } from '@/shared/lib/errors/httpError'
+import type { ActionError } from '@/shared/lib/errors/types'
 
 export function toActionError(error: unknown): ActionError {
   if (error instanceof HttpError) {

@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { Button } from '@/shared/components/ui/button'
+import { cn } from '@/shared/lib/utils'
 import { ListFilterIcon, XIcon } from 'lucide-react'
 import { Form, Link, useSearchParams, useSubmit } from 'react-router'
 

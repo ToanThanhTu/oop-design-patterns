@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button'
-import type { ActionResult } from '@/lib/errors/types'
-import type { Column } from '@/types/column'
+import { Button } from '@/shared/components/ui/button'
+import type { ActionResult } from '@/shared/lib/errors/types'
+import type { Column } from '@/modules/columns/entities/column'
 import { useEffect } from 'react'
 import { useFetcher } from 'react-router'
 

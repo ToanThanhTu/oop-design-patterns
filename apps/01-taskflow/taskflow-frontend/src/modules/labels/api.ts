@@ -1,5 +1,5 @@
-import { get, post } from '@/api/client'
-import type { CreateLabelDto, Label } from '@/types/label'
+import { get, post } from '@/shared/api/client'
+import type { CreateLabelDto, Label } from '@/modules/labels/entities/label'
 
 const labelsApiUrl = '/labels'
 

@@ -1,13 +1,10 @@
-import { createBoard, getBoards } from '@/api/boardApi'
-import { BoardList } from '@/components/boards/boards'
-import CreateBoardForm from '@/components/form/createBoardForm'
-import Modal from '@/components/modal/modal'
-import { Button } from '@/components/ui/button'
-import { toActionError } from '@/lib/errors/toActionError'
-import { zodErrorToActionError } from '@/lib/errors/zodErrorToActionError'
-import { CreateBoardSchema } from '@/schemas/boardSchemas'
+import { getBoards } from '@/modules/boards/api'
+import { handleCreateBoard } from '@/modules/boards/actions'
+import { BoardList } from '@/modules/boards/components/BoardList'
+import CreateBoardForm from '@/modules/boards/components/CreateBoardForm'
+import Modal from '@/shared/components/modal/Modal'
+import { Button } from '@/shared/components/ui/button'
 import { useState } from 'react'
-import { data } from 'react-router'
 import type { Route } from './+types/HomePage'
 
 export async function loader() {
@@ -56,28 +53,5 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData()
-  const parseResult = CreateBoardSchema.safeParse(Object.fromEntries(formData))
-
-  if (!parseResult.success) {
-    return data(
-      {
-        ok: false,
-        error: zodErrorToActionError(parseResult.error),
-      },
-      { status: 400 },
-    )
-  }
-
-  try {
-    const createdBoard = await createBoard(parseResult.data)
-    return data({ ok: true, data: createdBoard })
-  } catch (error: unknown) {
-    return data(
-      {
-        ok: false,
-        error: toActionError(error),
-      },
-      { status: 500 },
-    )
-  }
+  return handleCreateBoard(formData)
 }

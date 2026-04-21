@@ -1,15 +1,11 @@
-import { getBoard, getBoardColumns, getBoardTasks } from '@/api/boardApi'
-import { createColumn } from '@/api/columnApi'
-import { cloneTask, createTask } from '@/api/taskApi'
-import BoardView from '@/components/boards/board'
-import { BadRequestError } from '@/lib/errors/httpError'
-import { toActionError } from '@/lib/errors/toActionError'
-import { zodErrorToActionError } from '@/lib/errors/zodErrorToActionError'
-import { CreateColumnSchema } from '@/schemas/columnSchemas'
-import { CloneTaskSchema, CreateTaskSchema } from '@/schemas/taskSchemas'
+import { getBoard, getBoardColumns, getBoardTasks } from '@/modules/boards/api'
+import BoardView from '@/modules/boards/components/BoardView'
+import { handleCreateColumn } from '@/modules/columns/actions'
+import { handleCloneTask, handleCreateTask } from '@/modules/tasks/actions'
+import { FilterSchema, type FilterType } from '@/shared/filter/schemas'
+import { BadRequestError } from '@/shared/lib/errors/httpError'
 import { data } from 'react-router'
 import type { Route } from './+types/BoardPage'
-import { FilterSchema, type FilterType } from '@/schemas/filterSchemas'
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const url = new URL(request.url)
@@ -55,94 +51,12 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   switch (intent) {
     case 'create-column':
-      return handleCreateColumn(formData, params)
+      return handleCreateColumn(formData, params.id)
     case 'create-task':
       return handleCreateTask(formData)
     case 'clone-task':
       return handleCloneTask(formData)
     default:
       throw new BadRequestError('Wrong intent.')
-  }
-}
-
-async function handleCreateColumn(formData: FormData, params: { id: string }) {
-  const boardId = params.id
-  const parseResult = CreateColumnSchema.safeParse(Object.fromEntries(formData))
-
-  if (!parseResult.success) {
-    return data(
-      {
-        ok: false,
-        error: zodErrorToActionError(parseResult.error),
-      },
-      { status: 400 },
-    )
-  }
-
-  try {
-    const createdColumn = await createColumn(boardId, parseResult.data)
-    return data({ ok: true, data: createdColumn })
-  } catch (error: unknown) {
-    return data(
-      {
-        ok: false,
-        error: toActionError(error),
-      },
-      { status: 500 },
-    )
-  }
-}
-
-async function handleCreateTask(formData: FormData) {
-  const parseResult = CreateTaskSchema.safeParse(Object.fromEntries(formData))
-
-  if (!parseResult.success) {
-    return data(
-      {
-        ok: false,
-        error: zodErrorToActionError(parseResult.error),
-      },
-      { status: 400 },
-    )
-  }
-
-  try {
-    const createdTask = await createTask(parseResult.data.columnId, parseResult.data)
-    return data({ ok: true, data: createdTask })
-  } catch (error: unknown) {
-    return data(
-      {
-        ok: false,
-        error: toActionError(error),
-      },
-      { status: 500 },
-    )
-  }
-}
-
-async function handleCloneTask(formData: FormData) {
-  const parseResult = CloneTaskSchema.safeParse(Object.fromEntries(formData))
-
-  if (!parseResult.success) {
-    return data(
-      {
-        ok: false,
-        error: zodErrorToActionError(parseResult.error),
-      },
-      { status: 400 },
-    )
-  }
-
-  try {
-    const clonedTask = await cloneTask(parseResult.data.id)
-    return data({ ok: true, data: clonedTask })
-  } catch (error: unknown) {
-    return data(
-      {
-        ok: false,
-        error: toActionError(error),
-      },
-      { status: 500 },
-    )
   }
 }

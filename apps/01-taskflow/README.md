@@ -54,18 +54,17 @@ A Kanban-style task board where users create, organize, and track tasks across c
 │   │   ├── seed.ts          # Sample data (Development + Chores boards)
 │   │   └── index.ts         # Express app entry
 │   └── drizzle/             # Migration files
-├── taskflow-frontend/
+├── taskflow-frontend/          # Domain-driven layout
 │   ├── src/
-│   │   ├── api/             # client.ts + endpoints.ts + one file per resource
-│   │   ├── components/      # boards/, columns/, tasks/, form/, modal/, ui/
-│   │   ├── lib/
-│   │   │   ├── errors/      # ActionResult + error normalizers
-│   │   │   ├── formHelpers.ts  # Zod transformers for HTML form quirks
-│   │   │   └── utils.ts     # cn() helper
-│   │   ├── pages/           # HomePage.tsx, BoardPage.tsx (loaders + actions)
+│   │   ├── modules/         # Domain modules (boards/, columns/, tasks/, subtasks/, labels/)
+│   │   │   └── <domain>/    # components/, entities/, actions.ts, api.ts, schemas.ts
+│   │   ├── shared/          # Cross-cutting (no domain)
+│   │   │   ├── api/         # client.ts, endpoints.ts
+│   │   │   ├── components/  # forms/, modal/, ui/ (shadcn)
+│   │   │   ├── filter/      # FilterBar + schemas
+│   │   │   └── lib/         # errors/, formHelpers.ts, utils.ts
+│   │   ├── pages/           # HomePage.tsx, BoardPage.tsx (loaders + actions that dispatch)
 │   │   ├── routes/          # Resource routes (loader-only: /api/tasks/:id/subtasks|labels)
-│   │   ├── schemas/         # Frontend Zod schemas (user input only)
-│   │   ├── types/           # Plain-object types mirroring backend
 │   │   ├── entry.client.tsx # Hydration
 │   │   ├── entry.server.tsx # Streaming SSR
 │   │   ├── root.tsx         # Layout + shared ErrorBoundary
@@ -74,6 +73,8 @@ A Kanban-style task board where users create, organize, and track tasks across c
 │   └── react-router.config.ts
 └── IMPLEMENTATION_GUIDE.md  # Step-by-step build guide
 ```
+
+See [`taskflow-frontend/README.md`](taskflow-frontend/README.md) for per-module details and import rules.
 
 ## API Endpoints
 

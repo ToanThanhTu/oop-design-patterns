@@ -1,20 +1,21 @@
-import { Button } from '@/components/ui/button'
-import type { ActionResult } from '@/lib/errors/types'
-import { cn } from '@/lib/utils'
-import type { Priority, Task, TaskType } from '@/types/task'
+import { Button } from '@/shared/components/ui/button'
+import type { ActionResult } from '@/shared/lib/errors/types'
+import { cn } from '@/shared/lib/utils'
+import type { PriorityType, TaskTypeType } from '@/modules/tasks/schemas'
+import type { Task } from '@/modules/tasks/entities/task'
 import { Link, useFetcher } from 'react-router'
 
 interface TaskProps {
   task: Task
 }
 
-const priorityStyles: Record<Priority, string> = {
+const priorityStyles: Record<PriorityType, string> = {
   high: 'bg-red-100 text-red-700',
   low: 'bg-gray-100 text-gray-700',
   medium: 'bg-blue-100 text-blue-700',
 }
 
-const typeStyles: Record<TaskType, string> = {
+const typeStyles: Record<TaskTypeType, string> = {
   bug: 'bg-orange-100 text-orange-700',
   feature: 'bg-purple-100 text-purple-700',
   story: 'bg-green-100 text-green-700',

@@ -1,9 +1,9 @@
-import RequiredIndicator from '@/components/form/requiredIndicator'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Field, FieldError, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import RequiredIndicator from '@/shared/components/forms/RequiredIndicator'
+import { Button } from '@/shared/components/ui/button'
+import { Checkbox } from '@/shared/components/ui/checkbox'
+import { Field, FieldError, FieldLabel } from '@/shared/components/ui/field'
+import { Input } from '@/shared/components/ui/input'
+import { RadioGroup, RadioGroupItem } from '@/shared/components/ui/radio-group'
 import {
   Select,
   SelectContent,
@@ -11,10 +11,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import type { ActionResult } from '@/lib/errors/types'
-import type { Task } from '@/types/task'
+} from '@/shared/components/ui/select'
+import { Textarea } from '@/shared/components/ui/textarea'
+import type { ActionResult } from '@/shared/lib/errors/types'
+import type { Task } from '@/modules/tasks/entities/task'
 import { useEffect } from 'react'
 import { useFetcher } from 'react-router'
 

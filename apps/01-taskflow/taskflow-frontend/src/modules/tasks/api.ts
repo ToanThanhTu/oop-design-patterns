@@ -1,8 +1,9 @@
-import { del, get, post, put } from '@/api/client'
-import type { Label } from '@/types/label'
-import type { CreateSubtaskDto, Subtask } from '@/types/subtask'
-import type { CreateTaskDto, Task, UpdateTaskDto } from '@/types/task'
-import type { TaskLabel } from '@/types/taskLabel'
+import { del, get, post, put } from '@/shared/api/client'
+import type { Label } from '@/modules/labels/entities/label'
+import type { CreateSubtaskDto, Subtask } from '@/modules/subtasks/entities/subtask'
+import type { CreateTaskDto, UpdateTaskDto } from '@/modules/tasks/schemas'
+import type { Task } from '@/modules/tasks/entities/task'
+import type { TaskLabel } from '@/modules/labels/entities/taskLabel'
 
 const tasksApiUrl = '/tasks'
 

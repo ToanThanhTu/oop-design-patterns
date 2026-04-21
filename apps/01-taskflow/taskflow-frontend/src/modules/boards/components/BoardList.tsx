@@ -1,4 +1,4 @@
-import type { Board } from '@/types/board'
+import type { Board } from '@/modules/boards/entities/board'
 import { Link } from 'react-router'
 
 interface BoardListProps {
